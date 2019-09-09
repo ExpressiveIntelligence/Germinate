@@ -22,18 +22,10 @@ requirejs.config({
 
 		// *** Initial Cygnus file ***
 		"initialGame" : "../games/depression-A-game_1.lp"
-
 	}
-
-	/*
-	shim: {
-		"jQueryUI": {
-			export: "$",
-			deps: ["jQuery"]
-		}
-	}*/
-
 });
+
+var loadGame;
 
 requirejs(
 	["Phaser","AspPhaserGenerator","text!initialPhaserFile","text!initialGame",
@@ -42,12 +34,11 @@ requirejs(
 	function (Phaser, AspPhaserGenerator, initialPhaserFile, initialGame,
 		HealthBar, State, Condition, Display, StoryAssembler) {
 
-	var gameFile = initialGame;
-	loadGame (gameFile);
 
-	//document.getElementById("input").onchange = function(e) { openFile(e) };
+	loadGame_ (initialGame);
+	previousGame.disabled=true;
 
-	function loadGame (gameFile) {
+	function loadGame_ (gameFile) {
 
 		var aspGameFile  = gameFile.split("==========")[0];
 		var instructions = gameFile.split("==========")[1];
@@ -55,7 +46,7 @@ requirejs(
 		// Compile Cygnus .lp files into Phaser code
 		//var generator = AspPhaserGenerator.AspPhaserGenerator (aspGameFile,initialPhaserFile);
 		//var phaserProgram = AspPhaserGenerator.generate (generator.cygnusBrain, generator.initialPhaserBrain, true);
-		var phaserProgram = AspPhaserGenerator.compile (aspGameFile, initialPhaserFile, true);
+		var phaserProgram = AspPhaserGenerator.compile (aspGameFile, initialPhaserFile, false);
 	
 		/* Phaser Game Constructor: new Game(width, height, renderer, parent, state, transparent, antialias, physicsConfig);
 		 * Creates a canvas element
@@ -83,42 +74,16 @@ requirejs(
 		$("#instructionsdiv").prepend("<div id='instructions'>"//+"<h2>Beach Cleanup</h2>"
 			+instructions+"</div>");
 
-		console.log ("FINISHED PHASER PROGRAM:\n", phaserProgram);
+		//console.log ("FINISHED PHASER PROGRAM:\n", phaserProgram);
 
-		document.getElementById("restart").onclick = function() { restartGame(); };
-
+		restart.onclick = function() { restartGame(); };
 	}
 
-	// Called when the file chooser form input is submitted
-	function openFile (event) {
-	    var input = event.target;
-	
-	    var reader = new FileReader();
-	
-	    reader.onload = function() {
-	
-	        var contents = reader.result;
-
-			// Destroy the current game
-	       	if ( game !== "undefined") {
-				game.destroy();
-			}
-
-			// Remove current instructions
-			$("#instructions").empty();
-
-	        loadGame (contents);
-	
-	    };
-	
-	    reader.readAsText(input.files[0]);
-	}
-
+	// Save the loadGame function to the global scope so we can call it from ../main.js
+	loadGame = loadGame_;
 
 	function restartGame() {
 		this.game.state.restart();
 	}
 
-
 });
-

@@ -3,77 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Gemini Game Studio</title>
-  <style>
-  body {
-    font-family: sans-serif;
-    line-height: 1.5;
-  }
-  input[type="text"] {
-    text-align: center;
-  }
-  #maintitle {
-    font-size: 2.5rem;
-    text-align: center;
-  }
-  .formtab {
-    text-align: center;
-  }
-  .pick-topic {
-    font-size: 1.5em;
-  }
-  #whatsItAboutText {
-    font-size: 1.5em;
-    display: block;
-    margin: 1.5rem auto;
-  }
-  #whatPlayerWantsSelect {
-    font-size: 1.5em;
-  }
-  #whatPlayerWants p, #whatPlayerWants input[type="text"] {
-    font-size: 1.5rem;
-  }
-  .back {
-    background: #ddd;
-    border: none;
-    border-radius: .5rem;
-    font-size: 1.5rem;
-    font-weight: bold;
-    padding: .5rem;
-  }
-  .continue {
-    background: blue;
-    border: none;
-    border-radius: .5rem;
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-    padding: .5rem;
-  }
-  #whatPlayerWants, #whatsItLike, #summary {
-    display: none;
-  }
-  #whatsItLike table {
-    font-size: 1.5em;
-    margin: 1rem auto;
-    text-align: left;
-  }
-  #whatsItLike td:first-child {
-    padding-right: 1.5rem;
-  }
-  #whatsItLike select {
-    font-size: 1.5rem;
-  }
-  #game {
-    background: #eee;
-    height: 480px;
-    width: 640px;
-    margin: 1rem auto;
-  }
-  </style>
-  <script src="main.js" defer></script>
-    <!-- data-main attribute tells require.js to load scripts/main.js after require.js loads. -->
-    <script data-main="./js/main.js" src="./lib/require.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <!-- data-main attribute tells require.js to load scripts/main.js after require.js loads. -->
+  <script data-main="./js/main.js" src="./lib/require.js" defer></script>
 </head>
+
 <body>
   <main>
     <h1 id="maintitle">Gemini Game Studio</h1>
@@ -138,13 +74,16 @@
       </table>
       <button class="continue" id="whatsItLikeContinue">Continue »</button>
     </div>
+    <!-- <button id="skip">Skip to main</div> -->
     <div class="formtab" id="summary">
       <h1 id="gametitle">The $TOPIC Game</h1>
-      <div id="game"><!-- Phaser will create a canvas element here --> GAME GOES HERE</div>
-      <p id="restart-container"><button id="restart">Restart game</button></p>
-      <button class="back">« Previous game</button>
-      <button class="continue">Next game »</button>
+      <div id="game"><!-- Phaser will create a canvas element here --></div>
+      <div><button id="restart">Restart game</button></div>
+      <button class="back" id="previousGame">« Previous game</button>
+      <button class="continue" id="nextGame">Next game »</button>
+      <div><button class="continue" id="nextPool">Generate new games »</button></div>
     </div>
   </main>
+  <script src="main.js" defer></script>
 </body>
 </html>
