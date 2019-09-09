@@ -1,0 +1,783 @@
+[
+  {
+    "l":["prog"],
+    "relation": "instance_of",
+    "r":["program"],
+    "preload": {"images":[],"sounds":[
+		{"l":["good_sound"],
+		  "relation":"add_sound",
+		  "r":["assets/sounds/good.wav"]},
+		{"l":["bad_sound"],
+		  "relation":"add_sound",
+		  "r":["assets/sounds/bad.wav"]}
+		  ]},
+    "create":{"vars":[],"sprites":[],"listeners":[],"buttons":[],"motion":[],"misc":[]},
+    "update":{"vars":[],"listeners":[],"outcomes":[],"motion":[],"misc":[]},
+    "render":{}
+  },
+  {
+    "l":["gridSize"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":30
+  },
+  {
+    "l":["gridLinesHorizontal"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":"Math.floor((game.width-1)/gridSize)"
+  },
+  {
+    "l":["brushes"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":"{}; brushes['circle'] = game.make.sprite(0,0,'circle'); brushes['square'] = game.make.sprite(0,0,'square');brushes['triangle'] = game.make.sprite(0,0,'triangle');"
+  },
+  {
+    "l":["gridLinesVertical"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":"Math.floor((game.height-1)/gridSize)"
+  },
+  {
+    "l":["grid"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":"initGrid()"
+  },
+  {
+    "l":["gridIdx"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":0
+  },
+  {
+    "l":["addedEntities"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":["{}"]
+  },
+  {
+    "l":["labels"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":["{}"]
+  },
+  {
+    "l":["good_sound"],
+    "relation":"instance_of",
+    "r":["sound"]
+  },
+  {
+    "l":["bad_sound"],
+    "relation":"instance_of",
+    "r":["sound"]
+  },
+  {
+    "l":["low"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":1
+  },
+  {
+    "l":["medium"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":6
+  },
+  {
+    "l":["mid"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":"medium"
+  },
+  {
+    "l":["high"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":11
+  },
+    {
+    "l":["walls"],
+    "relation":"instance_of",
+    "r":["variable"]
+  },
+  {
+    "l":["xOffset"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":50
+  },
+  {
+    "l":["yOffset"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":50
+  },
+  {
+    "l":["background"],
+    "relation":"instance_of",
+    "r":["variable"],
+      "value":"game.add.bitmapData(400,300);\ngraphics = game.make.graphics( 0,0);\ngraphics.beginFill(0x000000);\ngraphics.drawRoundedRect(xOffset,yOffset, 400, 300, 10);\ngraphics.endFill();\ngraphic = game.make.sprite(0,0, graphics.generateTexture());\ngraphic.alpha = 0.0;\nbackground.draw(graphic);background.update();\nbackground.addToWorld(xOffset,yOffset)"
+  },
+  {
+    "l":["lossTextDisplayed"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":false
+  },
+  {
+    "l":["circle"],
+    "relation":"instance_of",
+    "r":["sprite"],
+    "image":"circle.png",
+    "width":40,
+    "height":40
+  },
+  {
+    "l":["pentagon"],
+    "relation":"instance_of",
+    "r":["sprite"],
+    "image":"pentagon.png",
+    "width":40,
+    "height":40
+  },
+  {
+    "l":["triangle"],
+    "relation":"instance_of",
+    "r":["sprite"],
+    "image":"triangle.png",
+    "width":40,
+    "height":40
+  },
+  {
+    "l":["star"],
+    "relation":"instance_of",
+    "r":["sprite"],
+    "image":"star.png",
+    "width":40,
+    "height":40
+  },
+  {
+    "l":["square"],
+    "relation":"instance_of",
+    "r":["sprite"],
+    "image":"square.png",
+    "width":40,
+    "height":40
+  },
+  {
+    "l":["red"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xff0000"
+  },
+  {
+    "l":["orange"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xffa500"
+  },
+  {
+    "l":["yellow"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xffff00"
+  },
+  {
+    "l":["green"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0x00ff00"
+  },
+  {
+    "l":["blue"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0x0000ff"
+  },
+  {
+    "l":["purple"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0x800080"
+  },
+  {
+    "l":["pink"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xffc0cB"
+  },
+  {
+    "l":["brown"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xa52a2a"
+  },
+  {
+    "l":["white"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xffffff"
+  },
+  {
+    "l":["gray","grey"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0x808080"
+  },
+  {
+    "l":["black"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0x000000"
+  },
+  {
+    "l":["magenta"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0xff00ff"
+  },
+  {
+    "l":["cyan"],
+    "relation":"instance_of",
+    "r":["color"],
+    "value":"0x00ffff"
+  },
+  {
+    "l":["center"],
+    "relation":"instance_of",
+    "r":["location"],
+    "x":160,
+    "y":220
+  },
+  {
+    "l":["lower_left"],
+    "relation":"instance_of",
+    "r":["location"],
+    "x":100,
+    "y":300
+  },
+  {
+    "l":["upper_right"],
+    "relation":"instance_of",
+    "r":["location"],
+    "x":300,
+    "y":100
+  },
+  {
+    "l":["setVariable"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["varName","value"],
+    "lines":[
+      "State.set(varName, value);",
+      "Display.setAvatars(State);",
+      "Display.setStats('storyStats');",
+      "StoryAssembler.refreshNarrative();"]
+  },
+  {
+    "l":["getVariable"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["variable, varName"],
+      "lines":[
+	  "//console.log(variable + ' =  State.get( \"' + varName + '\")' );",
+	  "//console.log(eval('State.get( \" ' + varName + '\")' ));",
+	  "eval(variable + ' =  State.get( \"' + varName + '\")' );"]
+  },
+  {
+    "l":["informNarrativeOfUpdatedVariables"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+ "for (i = 0; i < Object.keys(labels).length; i += 1) {",
+  "var variableName = Object.keys(labels)[i];",
+     "    if(labels[variableName].readWrite === 'write'){",
+     "      setVariable(labels[variableName].name, labels[variableName].value);",
+     "    }",
+     "    if(labels[variableName].readWrite === 'read_only'){",
+     "      getVariable(variableName,labels[variableName].name);",
+     "    }",
+     "  }"
+    ]
+  },
+  {
+    "l":["updateLabelsWithVariableValues"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+    "for (i = 0; i < Object.keys(labels).length; i += 1) {",
+    " var variableName = Object.keys(labels)[i];",
+    " labels[variableName].value = eval(Object.keys(labels)[i]);",
+    "}"
+    ]
+  },
+  {
+    "l":["getRandomPoint"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":["var x=game.rnd.integerInRange(0,game.world.width-1);","var y=game.rnd.integerInRange(0,game.world.height-1);","return new Phaser.Point(x,y);"]
+  },
+  {
+    "l":["initGrid"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":["grid=[];","for(var i=0;i<gridLinesHorizontal;i++){for(var j=0;j<gridLinesVertical;j++){grid.push(new Phaser.Point(i*gridSize,j*gridSize));}}","shuffle(grid);","return grid;"]
+  },
+  {
+    "l":["updateGrid"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["sprite"],
+    "lines":["gridIdx++;","if(gridIdx===grid.length){gridIdx=0;shuffle(grid);}"]
+  },
+  {
+    "l":["shuffle"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["a"],
+    "lines":["var j,x,i;","for(i=a.length;i;i--){j=Math.floor(Math.random()*i);x=a[i-1];a[i-1]=a[j];a[j]=x;}"]
+  },
+  {
+    "l":["move_towards"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","dir","speed"],
+    "lines":["e.body.velocity.x += dir.x*speed/8;","e.body.velocity.y += dir.y*speed/8;"]
+  },
+  {
+    "l":["move_away"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","dir","speed"],
+    "lines":["e.body.velocity.x -= dir.x*speed/8;","e.body.velocity.y -= dir.y*speed/8;"]
+  },
+  {
+    "l":["moves"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","x","y"],
+    "lines":["e.body.velocity.x += x;","e.body.velocity.y += y;"]
+  },
+  {
+    "l":["move_forward"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","amount"],
+    "lines":["var newV = game.physics.arcade.velocityFromRotation(e.rotation,amount);","e.body.velocity.x += newV.x;","e.body.velocity.y += newV.y;"]
+  },
+  {
+    "l":["move_left"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","amount"],
+    "lines":["var newV = game.physics.arcade.velocityFromRotation(e.rotation-Math.PI*0.5,amount);","e.body.velocity.x += newV.x;","e.body.velocity.y += newV.y;"]
+  },
+  {
+    "l":["move_right"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","amount"],
+    "lines":["var newV = game.physics.arcade.velocityFromRotation(e.rotation+Math.PI*0.5,amount);","e.body.velocity.x += newV.x;","e.body.velocity.y += newV.y;"]
+  },
+  {
+    "l":["move_backward"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["e","amount"],
+    "lines":["var newV = game.physics.arcade.velocityFromRotation(e.rotation-Math.PI,amount);","e.body.velocity.x += newV.x;","e.body.velocity.y += newV.y;"]
+  },
+  {
+    "l":["initEntityProperties"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["group"],
+    "lines":["group.forEach(function(item) {","item.deleted=false;","item.body.collideWorldBounds = true;","item.anchor.x = 0.5;","item.anchor.y = 0.5;","item.rotation = 0;","item.health = 100;","if (!item.body.velocity.hasOwnProperty('x')){item.body.velocity.x=0;}","if (!item.body.velocity.hasOwnProperty('y')){item.body.velocity.y=0;}","if (!item.body.hasOwnProperty('angularVelocity')){item.body.angularVelocity=0;}","}, this);"]
+  },
+  {
+    "l":["initEntity"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["item"],
+    "lines":[
+      "item.deleted=false;",
+      "item.invincible=true;",
+      "item.body.collideWorldBounds = true;",
+      "item.anchor.x = 0.5;",
+	    "item.anchor.y = 0.5;",
+	    "item.rotation = Math.random() * 360;",
+	    "item.desired_angle = item.angle;",
+      "item.x_teleported = 10;",
+      "item.y_teleported = 10;",
+      "item.health = 100;",
+      "if (!item.body.velocity.hasOwnProperty('x')){item.body.velocity.x=0;}",
+      "if (!item.body.velocity.hasOwnProperty('y')){item.body.velocity.y=0;}",
+      "if (!item.body.hasOwnProperty('angularVelocity')){item.body.angularVelocity=0;}",
+      "var entityName = item.key;",
+      "if (labels.hasOwnProperty(entityName)) {",
+      "\t var labelText = labels[entityName].name;",
+      "\t var entityLabel = game.add.text(0,0,labelText,{font:'16px Arial',fill:'#ffffff'});",
+      "\t //entityLabel.anchor.set(2.1,0.4); // For very short labels (e.g., 'e1')",
+      "\t entityLabel.anchor.set(1.6,0.5); // For normal labels",
+      "\t item.addChild (entityLabel);",
+      "\t //console.log('labels:',Object.keys(labels));",
+      "\t //console.log('labelText:',labelText);",
+      "}"      
+    ]
+  },
+  {
+    "l":["changeMode"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["newMode"],
+    "lines":["if(newMode==='game_win'){",
+      " mode = 'win';",
+      " game.world.removeAll();",
+      " displayText('CLEARED');",
+      "}",
+      "else if(newMode==='game_loss'){",
+      " mode='loss';",
+      " game.stage.backgroundColor = '#400';",
+      " if(!lossTextDisplayed){",
+      "   displayText('Game Over');",
+      "   lossTextDisplayed=true",
+      " }",
+      "}"]
+  },
+  {
+    "l":["displayText"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["t"],
+    "lines":["var style = { font: 'bold 32px Arial', fill: '#fff', boundsAlignH: 'center', boundsAlignV: 'middle'};","text = game.add.text(250.5, 200.5, t, style);","text.anchor.x = 0.5; text.anchor.y = 0.5;"]
+  },
+  {
+    "l":["goals"],
+    "relation":"instance_of",
+    "r":["variable"],
+    "value":["[]"]
+  },
+  {
+    "l":["getAspGoals"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":["if (goals === undefined || goals.length == 0){return ['No ASP goals.'];}","else{return goals;}"]
+  },
+  {
+    "l":["setUpWalls"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+        "walls = game.add.physicsGroup();",
+        "var wall1 = walls.create(-100+xOffset,yOffset);",
+        "wall1.width = 100;",
+        "wall1.height = 1000;",
+        "var wall2 = walls.create(xOffset,yOffset-100);",
+        "wall2.width = 4000;",
+        "wall2.height = 100;",
+        "var wall3 = walls.create(400+xOffset,yOffset);",
+        "wall3.width = 100;",
+        "wall3.height = 3000;",
+        "var wall4 = walls.create(xOffset,300+yOffset);",
+        "wall4.width = 4000;",
+        "wall4.height = 100;",
+        "wall1.body.immovable = true;",
+        "wall2.body.immovable = true;",
+        "wall3.body.immovable = true;",
+        "wall4.body.immovable = true;"
+
+    ]
+  },
+  {
+    "l":["random_int"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["min", "max"],
+    "lines":[
+      "var random_integer = Math.random()*(max+1)|min;",
+      "return random_integer;"
+    ]
+  },
+  {
+    "l":["createProgressBarConfig"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["resourceValue","resourceCount"],
+    "lines":[
+      "var barConfig = {};",
+      "var barHeight = 18;",
+      "var barWidth = 150;",
+      "barConfig.height = barHeight;",
+      "barConfig.width = barWidth;",
+      "barConfig.x = 100 + (10 * resourceCount) + (barWidth * resourceCount);",
+      "barConfig.y = 10;",
+      "barConfig.bg = {};",
+      "barConfig.bg.color = '#ffffff';",
+      "barConfig.bar = {};",
+      "barConfig.bar.color = '#6da0f2';",
+      "return barConfig;"
+    ]
+  },
+  {
+    "l":["addBarLabel"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":["barConfig","resourceCount","label"],
+    "lines":[
+      "var barWidth = 100;",
+      "var barHeight = 40;",
+      "var startX = barConfig.x;",
+      "var startY = barConfig.y + 2;",
+      "if(label !== undefined){",
+      "  text = game.add.text(startX, startY, label);",
+      "  text.anchor.set(0.5,0.5);",
+      "  text.align = 'center';",
+      "  //  Font style",
+      "  text.font = 'Arial';",
+      "  text.fontSize =16;",
+      "  //text.width = barWidth;",
+      "  //text.height = barHeight;",
+      "  text.fill = '#000000';",
+      "}"
+    ]
+  },
+  {
+    "l":["markZeroHealthEntitiesForDeletion"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+      "for(var k in addedEntities) {",
+      " if (addedEntities.hasOwnProperty(k)) {",
+      "   var entity = addedEntities[k];",
+      "   entity.forEach(function(item) {",
+      "     if(item.health <= 0){",
+      "       item.deleted = true;",
+      "     }",
+      "   }, this);",
+      " }",
+      "}"
+    ]
+  },
+  {
+    "l":["leaveContext"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+	"game.time.slowMotion = 2;"
+    ]
+  },
+  {
+    "l":["enterContext"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+	"game.time.slowMotion = 1;"
+    ]
+  },
+  {
+    "l":["setUpSlowDown"],
+    "relation":"instance_of",
+    "r":["function"],
+    "params":[],
+    "lines":[
+	"game.canvas.onmouseenter = enterContext;",
+	"game.canvas.onmouseout = leaveContext;"
+    ]
+  }
+,
+  {
+      "l":["clsStopwatch"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":[],
+      "lines":[
+	  "//console.log('CREATED STOPWATC')",
+	  "var startAt= 0;// Time of last start / resume. (0 if not running)",
+	  "var lapTime= 0;// Time on the clock when last stopped in milliseconds",
+	  "var now= function() {",
+	  "return (new Date()).getTime();",
+	  "}; ",
+	  "this.start = function() {",
+	  "startAt= startAt ? startAt : now();",
+	  "};",
+	  "this.stop = function() {",
+	  "lapTime= startAt ? lapTime + now() - startAt : lapTime;",
+	  "startAt= 0; // Paused",
+	  "};",
+	  "this.reset = function() {",
+	  "lapTime = startAt = 0;",
+	  "};",
+	  "this.time = function() {",
+	  "return lapTime + (startAt ? now() - startAt : 0); ",
+	  "};"]
+  },
+  {
+      "l":["get_amount"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["colorStr"],
+      "lines":[
+	        "var factor = 16;",
+	        "colors = {'red':[255,0,0],'blue':[0,0,255],'orange':[255, 87, 51],'green':[41, 159, 55],'clear':[0, 0, 0]};",
+          "if(typeof this.checker_timeouts == 'undefined') { this.checker_timeouts = {'red':null, 'blue':null, 'orange':null, 'green':null, 'clear':null}; }",
+          "var check = false;",
+          "if(typeof this.last == 'undefined') { this.last = {}; check = true; }",
+          "if(!this.checker_timeouts[colorStr]) { this.checker_timeouts[colorStr] = new clsStopwatch(); check=true; }",
+          "if(this.checker_timeouts[colorStr].time() > 1000) { check = true; }",
+	        "if(check) {",
+	        "    this.checker_timeouts[colorStr].reset();",
+          "    this.checker_timeouts[colorStr].start();",
+	        "    pixels = background.getPixels(new Phaser.Rectangle(0,0,400,300)).data;",
+	        "    color = colors[colorStr];",
+	        "    count = 0;",
+	        "    for (var ii = 0; ii < pixels.length; ii += 4*factor){",
+	        "        R = pixels[ii]; G = pixels[ii+1]; B = pixels[ii+2];",
+	        "        if (color[0] == R && color[1] == G && color[2] == B){ ",
+	        "            count += 1;",
+	        "        }",
+	        "     }",
+	        "     this.last[colorStr] =  count*10.*factor / (400.*300.);",
+	        "}",
+	        "return this.last[colorStr];"
+      ]
+  }
+,
+  {
+    "l":["draw"],
+    "relation":"instance_of",
+    "r":["function"],
+      "params":["x","y","shape","color"],
+      "lines":[
+  "colors = {'red':0xff0000,'blue':0x0000ff,'orange':0xFF5733,'green':0x299F37};",
+  "color = colors[color];",
+  "shape = brushes[shape];",
+  "shape.tint = color;",
+  "background.draw(shape,x,y);",
+  "background.update();"
+    ]
+  },
+  {
+      "l":["clear"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["x","y","shape"],
+      "lines":[
+  "shape = brushes[shape];",
+	  "background.draw(shape,x,y,null,null,'destination-out');"
+    ]
+  },
+  {
+      "l":["is_overlapping"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["x","y","color"],
+      "lines":[
+	  "colors = {'red':0xff0000,'blue':0x0000ff,'orange':0xFF5733,'green':0x299F37};",
+	  "color = colors[color];",
+	  "pixel = background.getPixel(x, y);",
+	  "pixel = pixel.r*256*256 + pixel.g*256 + pixel.b;",
+	  "return pixel === color;"
+    ]
+  },
+  {
+      "l":["fill"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["location","color"],
+      "lines":[
+	  "colors = {'red':0xff0000,'blue':0x0000ff,'orange':0xFF5733,'green':0x299F37};",
+	  "color = colors[color];",
+	  "graphics.clear();",
+	  "if (location == 'all'){",
+	  "graphics.beginFill(color);",
+	  "graphics.drawRoundedRect(xOffset,yOffset, 400, 300, 10);",
+	  "graphics.endFill();",
+	  "graphic = game.make.sprite(0,0, graphics.generateTexture());",
+	  "background.clear();",
+	  "background.draw(graphic);",
+	  "background.update();",
+	  "}",
+	  "else {",
+	  "var y = 0;",
+	  "var height = 100;",
+	  "var x = 0;",
+	  "var width = 133;",
+	  "if (location.indexOf('middle') > 0){",
+	  "y = 100;",
+	  "height = 100;",
+	  "}",
+	  "if (location.indexOf('bottom') > 0){",
+	  "y = 200;",
+	  "height = 100;",
+	  "}",
+	  "if (location.indexOf('center') > 0){",
+	  "x = 133;",
+	  "width = 134;",
+	  "}",
+	  "if (location.indexOf('right') > 0){",
+	  "x = 267;",
+	  "width = 133;",
+	  "}",
+	  "graphics.beginFill(color);",
+	  "graphics.drawRoundedRect(x+xOffset,y+yOffset, width, height, 10);",
+	  "graphics.endFill();",
+	  "graphic = game.make.sprite(0,0, graphics.generateTexture());",
+	  "background.draw(graphic);",
+	  "background.update();",
+	  "}"
+    ]
+  },
+  {
+      "l":["get_distance"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["entity","other","mode"],
+      "lines":[
+      "var best = 0;",
+      "if (mode === 'nearest'){ best = Number.POSITIVE_INFINITY;}",
+      "if (mode === 'furthest'){ best = Number.NEGATIVE_INFINITY;}",
+      "addedEntities[other].forEach(function(o) {",
+      "var distance = game.physics.arcade.distanceBetween(entity,o);",
+      "if (mode === 'nearest' && distance < best){ best = distance;}",
+      "if (mode === 'furthest' && distance > best){ best = distance;}",
+	  "}, this);",
+	  "//console.log(best);",
+      "return best*0.75;"
+    ]
+  },
+  {
+      "l":["shortAngleDist"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["a0","a1"],
+      "lines":[
+	  "var max = Math.PI*2;",
+	  "var da = (a1 - a0) % max;",
+	  "return 2*da % max - da;"
+      ]
+  },
+  {
+      "l":["angleLerp"],
+      "relation":"instance_of",
+      "r":["function"],
+      "params":["a0","a1","t"],
+      "lines":[
+	  "a0 *= Math.PI/180;",
+	  "a1 *= Math.PI/180;",
+	   "return 180/Math.PI*(a0 + shortAngleDist(a0,a1)*t);"
+      ]
+  }
+
+
+
+]

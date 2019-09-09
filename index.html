@@ -63,7 +63,7 @@
   #whatsItLike select {
     font-size: 1.5rem;
   }
-  #gameplaceholder {
+  #game {
     background: #eee;
     height: 480px;
     width: 640px;
@@ -71,6 +71,8 @@
   }
   </style>
   <script src="main.js" defer></script>
+    <!-- data-main attribute tells require.js to load scripts/main.js after require.js loads. -->
+    <script data-main="./js/main.js" src="./lib/require.js"></script>
 </head>
 <body>
   <main>
@@ -138,7 +140,8 @@
     </div>
     <div class="formtab" id="summary">
       <h1 id="gametitle">The $TOPIC Game</h1>
-      <div id="gameplaceholder">GAME GOES HERE</div>
+      <div id="game"><!-- Phaser will create a canvas element here --> GAME GOES HERE</div>
+      <p id="restart-container"><button id="restart">Restart game</button></p>
       <button class="back">« Previous game</button>
       <button class="continue">Next game »</button>
     </div>

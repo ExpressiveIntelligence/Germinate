@@ -1,0 +1,16 @@
+searchLibraryForPaths. wants is [establishDetails eq true,establishComposure eq true,establishStudents eq true,enthusiasticStudent eq true,skepticalStudent eq true,shyStudent eq true,talkToStudent gte 3,followUp eq true,lectureEnd eq true] and we are skipping []. rLevel 1
+BestPath.js:596 b/c params.startAt, starting at establishScene
+BestPath.js:596 findAllSatisfyingPaths starting from 'establishScene' and satisfying wants: establishDetails eq true,establishComposure eq true,establishStudents eq true,enthusiasticStudent eq true,skepticalStudent eq true,shyStudent eq true,talkToStudent gte 3,followUp eq true,lectureEnd eq true
+BestPath.js:596 nothing in establishScene directly made any Wants true
+BestPath.js:596 finished searchLibraryForPaths for wants: [establishDetails eq true,establishComposure eq true,establishStudents eq true,enthusiasticStudent eq true,skepticalStudent eq true,shyStudent eq true,talkToStudent gte 3,followUp eq true,lectureEnd eq true] and skipList [].
+StoryAssembler.js:143 bestPath is:  undefined
+StoryAssembler.js:144 ===================================================================================
+StoryAssembler.js:182 Uncaught TypeError: Cannot read property 'choiceDetails' of undefined
+    at Object.refreshNarrative (StoryAssembler.js:182)
+    at setVariable (eval at runGenerator (game.js:106), <anonymous>:362:17)
+    at Object.informNarrativeOfUpdatedVariables (eval at runGenerator (game.js:106), <anonymous>:373:8)
+    at Phaser.Timer.update (phaser.js:67501)
+    at Phaser.Time.update (phaser.js:66836)
+    at Phaser.Game.update (phaser.js:36058)
+    at Phaser.RequestAnimationFrame.updateRAF (phaser.js:61910)
+    at _onLoop (phaser.js:61893)

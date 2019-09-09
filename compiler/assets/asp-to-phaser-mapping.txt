@@ -1,0 +1,55 @@
+purple_square   - http://examples.phaser.io/assets/sprites/32x32.png
+pink_square     - http://examples.phaser.io/assets/sprites/50x50.png
+red_A           - http://examples.phaser.io/assets/sprites/a.png
+aqua_ball       - http://examples.phaser.io/assets/sprites/aqua_ball.png
+right_arrow     - http://examples.phaser.io/assets/sprites/arrow.png
+green_B         - http://examples.phaser.io/assets/sprites/b.png
+wooden_block    - http://examples.phaser.io/assets/sprites/block.png
+blue_ball       - http://examples.phaser.io/assets/sprites/blue_ball.png
+car             - http://examples.phaser.io/assets/sprites/car.png
+car_turned      - http://examples.phaser.io/assets/sprites/car90.png
+carrot          - http://examples.phaser.io/assets/sprites/carrot.png
+diamond         - http://examples.phaser.io/assets/sprites/diamond.png
+eggplant        - http://examples.phaser.io/assets/sprites/eggplant.png
+health_kit      - http://examples.phaser.io/assets/sprites/firstaid.png
+green_ball      - http://examples.phaser.io/assets/sprites/green_ball.png
+giant_hotdog    - http://examples.phaser.io/assets/sprites/hotdog.png
+long_right_arrow - http://examples.phaser.io/assets/sprites/longarrow.png
+long_left_arrow - http://examples.phaser.io/assets/sprites/longarrow2.png
+trefoil_knot    - http://examples.phaser.io/assets/sprites/loop.png
+melon           - http://examples.phaser.io/assets/sprites/melon.png
+mushroom        - http://examples.phaser.io/assets/sprites/mushroom.png
+onion           - http://examples.phaser.io/assets/sprites/onion.png
+orb_blue        - http://examples.phaser.io/assets/sprites/orb-blue.png
+orb_green       - http://examples.phaser.io/assets/sprites/orb-green.png
+orb_red         - http://examples.phaser.io/assets/sprites/orb-red.png
+big_orb_blue    - http://examples.phaser.io/assets/sprites/pangball.png
+pepper          - http://examples.phaser.io/assets/sprites/pepper.png
+pineapple       - http://examples.phaser.io/assets/sprites/pineapple.png
+plane           - http://examples.phaser.io/assets/sprites/plane.png
+platform        - http://examples.phaser.io/assets/sprites/platform.png
+red_ball        - http://examples.phaser.io/assets/sprites/red_ball.png
+purple_ball     - http://examples.phaser.io/assets/sprites/purple_ball.png
+shiny_ball      - http://examples.phaser.io/assets/sprites/shinyball.png
+rocket_ship     - http://examples.phaser.io/assets/sprites/ship.png
+slime           - http://examples.phaser.io/assets/sprites/slime.png
+glowing_panda   - http://examples.phaser.io/assets/sprites/spinObj_01.png
+glowing_rainbow - http://examples.phaser.io/assets/sprites/spinObj_02.png
+glowing_unicorn - http://examples.phaser.io/assets/sprites/spinObj_03.png
+glowing_smiley  - http://examples.phaser.io/assets/sprites/spinObj_04.png
+glowing_guitar  - http://examples.phaser.io/assets/sprites/spinObj_05.png
+glowing_candy   - http://examples.phaser.io/assets/sprites/spinObj_06.png
+glowing_watermelon - http://examples.phaser.io/assets/sprites/spinObj_07.png
+glowing_radio   - http://examples.phaser.io/assets/sprites/spinObj_08.png
+tetris_t        - http://examples.phaser.io/assets/sprites/tetrisblock1.png
+tetris_z        - http://examples.phaser.io/assets/sprites/tetrisblock2.png
+tetris_L        - http://examples.phaser.io/assets/sprites/tetrisblock3.png
+tomato          - http://examples.phaser.io/assets/sprites/tomato.png
+ufo             - http://examples.phaser.io/assets/sprites/ufo.png
+rabbit          - http://examples.phaser.io/assets/sprites/wabbit.png
+yellow_ball     - http://examples.phaser.io/assets/sprites/yellow_ball.png
+
+
+larger/sprite sheets that might be useful once we get them working:
+http://examples.phaser.io/assets/sprites/seacreatures.png
+http://examples.phaser.io/assets/sprites/waters.png
