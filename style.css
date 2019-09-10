@@ -96,3 +96,7 @@ button:disabled{
   margin: auto;
   padding: 20px;
 }
+input[type="number"] {
+  font-size: 1.5rem;
+  width: 50px;
+}

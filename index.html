@@ -52,7 +52,7 @@
           </td>
         </tr>
         <tr>
-          <td>How are the stakes?</td>
+          <td>The stakes are...</td>
           <td>
             <select name="stakes" id="stakes">
               <option value="High">High</option>
@@ -68,6 +68,93 @@
               <option value="Yes">Yes</option>
               <option value="No">No</option>
               <option value="DontCare">Don't care</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Minimum number of entities</td>
+          <td>
+            <input type="number" value="1" min="0">
+          </td>
+        </tr>
+        <tr>
+          <td>Maximum number of entities</td>
+          <td>
+            <input type="number" value="2" min="1">
+          </td>
+        </tr>
+        <tr>
+          <td>Minimum number of resources</td>
+          <td>
+            <input type="number" value="1" min="0">
+          </td>
+        </tr>
+        <tr>
+          <td>Maximum number of resources</td>
+          <td>
+            <input type="number" value="2" min="1">
+          </td>
+        </tr>
+        <tr>
+          <td>Game screen boundary type</td>
+          <td>
+            <select name="boundary" id="boundary">
+              <option value="Closed">Closed</option>
+              <option value="Wrap-around">Wrap-around</option>
+              <option value="DontCare">Don't care</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Can you win?</td>
+          <td>
+            <select name="win" id="win">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+              <option value="DontCare">Don't care</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Can you lose?</td>
+          <td>
+            <select name="lose" id="lose">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+              <option value="DontCare">Don't care</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Background color</td>
+          <td>
+            <input type="color">
+          </td>
+        </tr>
+        <tr>
+          <td>Allow orbit controls?</td>
+          <td>
+            <select name="controlModeOrbit" id="controlModeOrbit">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Allow flee controls?</td>
+          <td>
+            <select name="controlModeFlee" id="controlModeFlee">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Allow drag & drop controls?</td>
+          <td>
+            <select name="controlModeDragndrop" id="controlModeDragndrop">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
             </select>
           </td>
         </tr>
