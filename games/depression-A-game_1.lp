@@ -1,5 +1,4 @@
 label(resource(r_1_XX_),r(1),private).
-label(entity(e_1_XX_),e(1)).
 
 entity(e_1_XX_).
 
@@ -9,7 +8,7 @@ many(entity(e_1_XX_)).
 
 initialize(set_value(resource(r_1_XX_),scalar(0))).
 initialize(add(entity(e_1_XX_),scalar(1),location(middle,center))).
-initialize(set_sprite(entity(e_1_XX_),triangle)).
+initialize(set_sprite(entity(e_1_XX_),smiley)).
 initialize(set_color(entity(e_1_XX_),red)).
 initialize(set_draggable(entity(e_1_XX_),true)).
 

@@ -151,6 +151,14 @@
     "height":40
   },
   {
+    "l":["smiley"],
+    "relation":"instance_of",
+    "r":["sprite"],
+    "image":"smiley.png",
+    "width":40,
+    "height":40
+  },
+  {
     "l":["star"],
     "relation":"instance_of",
     "r":["sprite"],

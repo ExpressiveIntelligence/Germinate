@@ -1187,6 +1187,8 @@ define(["./cygnus-to-phaser-brain-2", "./brain"], function(ctp, rensa) {
         str+= "game.load.image('circle','assets/sprites/circle.png');"
         str+= "game.load.image('triangle','assets/sprites/triangle.png');"
         str+= "game.load.image('square','assets/sprites/square.png');"
+        str+= "game.load.image('smiley','assets/sprites/smiley.png');"
+
         if (spriteImgID!=undefined && b.assertions[spriteImgID]!=undefined){
             if (b.assertions[spriteImgID]["image"]){
                 var img = b.assertions[spriteImgID]["image"];

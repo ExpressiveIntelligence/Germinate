@@ -62,8 +62,6 @@ whatPlayerWantsSelect.onchange = function(ev) {
 }
 
 whatPlayerWantsContinue.onclick = function() {
-  console.log('goal: ' + whatPlayerWantsSelect.options[whatPlayerWantsSelect.selectedIndex].value);
-  console.log('target: ' + whatPlayerWantsText.value);
   nextTab();
 }
 
@@ -74,10 +72,15 @@ function capitalizeFirstLetter(string) {
 }
 
 whatsItLikeContinue.onclick = function() {
-  whatsItLike.style.display = 'none';
-  summary.style.display = 'block';
+  //whatsItLike.style.display = 'none';
+  //summary.style.display = 'block';
+  nextTab();
   let topic = capitalizeFirstLetter(mainGameTopic);
   gametitle.innerText = gametitle.innerText.replace('$TOPIC', topic);
+
+  currentPoolIndex++;
+  currentGameIndex = 0;
+  loadNextGame();
 }
 
 /// summary
@@ -101,7 +104,7 @@ let games = [ ["games/depression-A-game_1.lp", // first game loaded in compiler/
                "games/depression-E-game_4.lp",
                "games/depression-E-game_5.lp"]
             ];
-let currentPoolIndex = 0;
+let currentPoolIndex = -1;
 let currentGameIndex = 0;
 
 // Load next game in the current pool (for the current intent)
@@ -157,9 +160,9 @@ function loadNextGame () {
   xhttp.send();
 }
 
-// Load first game in the next pool of games
-nextPool.onclick = function() {
-  currentPoolIndex++;
-  currentGameIndex = 0;
-  loadNextGame();
+modifyIntent.onclick = function() {
+  console.log("In modifyIntent");
+  prevTab();
 }
+
+
