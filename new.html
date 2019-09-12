@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  .columns {
+    display: flex;
+    flex-flow: row wrap;
+  }
+  .columns > * {
+    padding: 1rem;
+  }
+  section {
+    margin-bottom: 1rem;
+  }
+  .intent {
+    background: #fee;
+    width: 30%;
+  }
+  .thisgamerules {
+    background: #efe;
+    width: 30%;
+  }
+  .thisgame {
+    background: #eef;
+    width: 40%;
+  }
+  .things-list {
+    display: flex;
+    flex-flow: row wrap;
+  }
+  .thing {
+    background: #ccc;
+    width: 30%;
+    margin-right: 3%;
+    min-height: 100px;
+    padding: 5px 2px;
+    position: relative;
+    text-align: center;
+  }
+  .thing.new-button {
+    cursor: pointer;
+    line-height: 1;
+    border: 4px dotted #ccc;
+    background: transparent;
+    color: #ccc;
+    font-size: 5rem;
+    font-weight: bold;
+  }
+  input[type="text"] {
+    width: 50px;
+  }
+  h2 {
+    text-align: center;
+  }
+  h2, h3 {
+    margin-bottom: 0;
+  }
+  .gametitle {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0 auto;
+    text-align: center;
+    width: 75% !important;
+  }
+  .entity-name {
+    /*background: transparent;
+    border: none;
+    border-bottom: 2px dotted #aaa;*/
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    width: 90% !important;
+  }
+  .entity-icon {
+    font-size: 2rem;
+  }
+  .randomize {
+    background: orange;
+    border-radius: 4px;
+    padding: 0;
+    line-height: 1;
+    padding-top: 4px;
+    position: absolute;
+    font-size: 1.5rem;
+    right: -2px;
+    top: -8px;
+  }
+  /*h4 {
+    font-size: 1rem;
+    font-weight: normal;
+  }*/
+  </style>
+</head>
+<body>
+  <main>
+    <div class="columns">
+      <div class="intent">
+        <h2>Intent</h2>
+        <section class="entities">
+          <h3>Entities</h3>
+          <div class="things-list">
+            <div class="thing entity">
+              <input type="text" class="entity-name" value="Friend">
+              <div class="randomize">🎲</div>
+              <div class="entity-icon">💁</div>
+              <select name="" id="">
+                <option value="">Required</option>
+                <option value="">Optional</option>
+              </select>
+              <select name="" id="">
+                <option value="">Good</option>
+                <option value="">Neutral</option>
+                <option value="">Bad</option>
+                <option value="">Complicated</option>
+                <option value="">Surprise me</option>
+              </select>
+            </div>
+            <div class="thing entity new-button">+</div>
+          </div>
+        </section>
+        <section class="resources">
+          <h3>Resources</h3>
+          <div class="things-list">
+            <div class="thing resource"></div>
+            <div class="thing resource new-button">+</div>
+          </div>
+        </section>
+        <section class="relationships">
+          <h3>Relationships</h3>
+          <div class="relationship">
+            <input type="text">
+            <select name="" id="">
+              <option value="">Consumes</option>
+              <option value="">Produces</option>
+              <option value="">Defeats</option>
+              <option value="">Avoids</option>
+              <option value="">Collides with</option>
+            </select>
+            <input type="text">
+          </div>
+        </section>
+        <section class="triggers">
+          <h3>Triggers</h3>
+        </section>
+      </div>
+      <div class="thisgamerules">
+        <h2>Rules (This Game)</h2>
+        <section class="entities">
+          <h3>Entities</h3>
+          <div class="things-list">
+            <div class="thing entity">
+              <input type="text" class="entity-name" value="Friend">
+              <div class="entity-icon">💁</div>
+              <select name="" id="">
+                <option value="">Required</option>
+                <option value="">Optional</option>
+              </select>
+              <select name="" id="">
+                <option value="">Good</option>
+                <option value="">Neutral</option>
+                <option value="">Bad</option>
+                <option value="">Complicated</option>
+                <option value="">Surprise me</option>
+              </select>
+            </div>
+            <div class="thing entity new-button">+</div>
+          </div>
+        </section>
+        <section class="resources">
+          <h3>Resources</h3>
+          <div class="things-list">
+            <div class="thing resource"></div>
+            <div class="thing resource new-button">+</div>
+          </div>
+        </section>
+        <section class="relationships">
+          <h3>Relationships</h3>
+          <div class="relationship">
+            <input type="text">
+            <select name="" id="">
+              <option value="">Consumes</option>
+              <option value="">Produces</option>
+              <option value="">Defeats</option>
+              <option value="">Avoids</option>
+              <option value="">Collides with</option>
+            </select>
+            <input type="text">
+          </div>
+        </section>
+        <section class="triggers">
+          <h3>Triggers</h3>
+        </section>
+      </div>
+      <div class="thisgame">
+        <input class="gametitle" type="text" value="A Game about Depression">
+      </div>
+    </div>
+    <div class="intent-navigator"></div>
+  </main>
+</body>
+</html>
