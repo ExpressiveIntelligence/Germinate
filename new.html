@@ -38,8 +38,9 @@
   }
   .thing {
     background: #ccc;
-    width: 30%;
-    margin-right: 3%;
+    width: 45%;
+    margin-bottom: 1rem;
+    margin-right: 5%;
     min-height: 100px;
     padding: 5px 2px;
     position: relative;
@@ -55,7 +56,7 @@
     font-weight: bold;
   }
   input[type="text"] {
-    width: 50px;
+    width: 100px;
   }
   h2 {
     text-align: center;
@@ -71,7 +72,7 @@
     text-align: center;
     width: 75% !important;
   }
-  .entity-name {
+  .thing-name {
     /*background: transparent;
     border: none;
     border-bottom: 2px dotted #aaa;*/
@@ -85,13 +86,80 @@
   .randomize {
     background: orange;
     border-radius: 4px;
-    padding: 0;
+    cursor: pointer;
+    font-size: 1.5rem;
     line-height: 1;
+    padding: 0;
     padding-top: 4px;
     position: absolute;
-    font-size: 1.5rem;
     right: -2px;
     top: -8px;
+  }
+  .generate-games {
+    background: rgb(0,150,255);
+    border-radius: .5rem;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: .5rem;
+    text-align: center;
+  }
+  .tag {
+    background-color: cornflowerblue;
+    border-radius: 5px;
+    color: white;
+    display: inline-block;
+    font-size: .8rem;
+    padding: 5px;
+    margin-bottom: 3px;
+    line-height: 1;
+    text-align: left;
+    max-width: 90%;
+  }
+  .tag.negated:before {
+    background: maroon;
+    border-radius: 5px;
+    padding: 2px;
+    content: "NOT ";
+    color: white;
+    position: relative;
+    left: -2px;
+  }
+  .edit-tags {
+    cursor: pointer;
+    display: block;
+    font-size: .8rem;
+    text-decoration: underline;
+  }
+  .tag-editor {
+    background: #dee;
+    border: 2px solid maroon;
+    border-radius: 1rem;
+    border-top-left-radius: 0;
+    position: absolute;
+    left: 90%;
+    padding: 1rem;
+    top: 0;
+    text-align: left;
+    line-height: 1;
+    width: 300px;
+    z-index: 10000;
+  }
+  .tag-family:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  .tag-family .tag {
+    cursor: pointer;
+    margin-right: 0.25rem;
+  }
+  .close-tag-editor {
+    cursor: pointer;
+    position: absolute;
+    top: .5rem;
+    right: .5rem;
+    color: red;
+    font-weight: bold;
   }
   /*h4 {
     font-size: 1rem;
@@ -106,30 +174,14 @@
         <h2>Intent</h2>
         <section class="entities">
           <h3>Entities</h3>
-          <div class="things-list">
-            <div class="thing entity">
-              <input type="text" class="entity-name" value="Friend">
-              <div class="randomize">🎲</div>
-              <div class="entity-icon">💁</div>
-              <select name="" id="">
-                <option value="">Required</option>
-                <option value="">Optional</option>
-              </select>
-              <select name="" id="">
-                <option value="">Good</option>
-                <option value="">Neutral</option>
-                <option value="">Bad</option>
-                <option value="">Complicated</option>
-                <option value="">Surprise me</option>
-              </select>
-            </div>
+          <div id="intentEntitiesList" class="things-list">
             <div class="thing entity new-button">+</div>
           </div>
         </section>
         <section class="resources">
           <h3>Resources</h3>
-          <div class="things-list">
-            <div class="thing resource"></div>
+          <div id="intentResourcesList" class="things-list">
+            <!--<div class="thing resource"></div>-->
             <div class="thing resource new-button">+</div>
           </div>
         </section>
@@ -150,6 +202,7 @@
         <section class="triggers">
           <h3>Triggers</h3>
         </section>
+        <div class="generate-games">Generate games »</div>
       </div>
       <div class="thisgamerules">
         <h2>Rules (This Game)</h2>
@@ -205,5 +258,6 @@
     </div>
     <div class="intent-navigator"></div>
   </main>
+  <script src="new.js"></script>
 </body>
 </html>
