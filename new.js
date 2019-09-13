@@ -58,8 +58,7 @@ let exampleIntent = {
       name: "Friend",
       icon: "💁",
       tags: [
-        {family: 'playerAttitude', value: 'good'},
-        {family: 'tendency', value: 'decrease rapidly', isNegated: true}
+        {family: 'playerAttitude', value: 'good'}
       ]
     },
     {
@@ -81,7 +80,10 @@ let exampleIntent = {
     },
     {
       name: "Resource2",
-      tags: [{family: 'optional', value: 'optional'}]
+      tags: [
+        {family: 'optional', value: 'optional'},
+        {family: 'playerAttitude', value: 'bad', isNegated: true},
+      ]
     }
   ],
   relationships: [
