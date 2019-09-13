@@ -5,6 +5,12 @@ function upcaseFirst(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+let lastID = -1;
+function getNextID() {
+  lastID++;
+  return 'id' + lastID;
+}
+
 let triggerConditions = {
   rvalGte: ['resource', 'value'],
   rvalLte: ['resource', 'value'],
@@ -89,65 +95,90 @@ function cycleTag(fullTagText) {
   return tagFamily.text + ' ' + tagFamily.tags[nextTagIndex];
 }
 
-let exampleIntent = {
-  entities: [
-    {
-      name: "Friend",
-      icon: "💁",
-      tags: [
-        {family: 'playerAttitude', value: 'good'}
-      ]
-    },
-    {
-      name: "",
-      icon: "❓",
-      tags: [
-        {family: 'optional', value: 'optional'}
-      ]
-    }
-  ],
-  resources: [
-    {
-      name: "Depression",
-      tags: [
-        {family: 'playerAttitude', value: 'bad'},
-        {family: 'initialLevel', value: 'low'},
-        {family: 'tendency', value: 'increase slowly'}
-      ]
-    },
-    {
-      name: "Resource2",
-      tags: [
-        {family: 'optional', value: 'optional'},
-        {family: 'playerAttitude', value: 'bad', isNegated: true},
-      ]
-    }
-  ],
-  relationships: [
-    {
-      lhs: "Friend",
-      type: "collides with",
-      rhs: "Insecurity"
-    },
-    {
-      lhs: "Insecurity",
-      type: "produces",
-      rhs: "Depression"
-    }
-  ],
-  triggers: [
-    {
-      when: [
-        {
-          cond: 'Resource greater than value',
-          params: ['Depression', '5']
-        }
-      ],
-      then: [
-        {action: 'Spawn entity at', params: ['Friend', '0,0']}
-      ]
-    }
-  ]
+
+let exampleIntent = {};
+
+function addThingToIntent(thing, type) {
+  let id = getNextID();
+  thing.id = id;
+  if (type) thing.type = type;
+  if (!thing.type) console.error('thing must have type!', thing);
+  exampleIntent[id] = thing;
+}
+
+let exampleEntities = [
+  {
+    name: "Friend",
+    icon: "💁",
+    tags: [
+      {family: 'playerAttitude', value: 'good'}
+    ]
+  },
+  {
+    name: "",
+    icon: "❓",
+    tags: [
+      {family: 'optional', value: 'optional'}
+    ]
+  }
+];
+
+let exampleResources = [
+  {
+    name: "Depression",
+    tags: [
+      {family: 'playerAttitude', value: 'bad'},
+      {family: 'initialLevel', value: 'low'},
+      {family: 'tendency', value: 'increase slowly'}
+    ]
+  },
+  {
+    name: "Resource2",
+    tags: [
+      {family: 'optional', value: 'optional'},
+      {family: 'playerAttitude', value: 'bad', isNegated: true},
+    ]
+  }
+];
+
+let exampleRelationships = [
+  {
+    lhs: "Friend",
+    reltype: "collides with",
+    rhs: "Insecurity"
+  },
+  {
+    lhs: "Insecurity",
+    reltype: "produces",
+    rhs: "Depression"
+  }
+];
+
+let exampleTriggers = [
+  {
+    when: [
+      {
+        cond: 'Resource greater than value',
+        params: ['Depression', '5']
+      }
+    ],
+    then: [
+      {action: 'Spawn entity at', params: ['Friend', '0,0']}
+    ]
+  }
+];
+
+for (let entity of exampleEntities) {
+  addThingToIntent(entity, 'entity');
+}
+for (let resource of exampleResources) {
+  addThingToIntent(resource, 'resource');
+}
+for (let relationship of exampleRelationships) {
+  addThingToIntent(relationship, 'relationship');
+}
+for (let trigger of exampleTriggers) {
+  addThingToIntent(trigger, 'trigger');
 }
 
 function createNode(html) {
@@ -187,7 +218,7 @@ function wireUpOnclickHandlers(thingNode) {
 }
 
 function createEntityNode(entity) {
-  let html = `<div class="thing entity">
+  let html = `<div class="thing entity" id="${entity.id}">
     <div class="minibutton randomize" title="Randomize this entity">🎲</div>
     <div class="minibutton delete" title="Delete this entity">🗑️</div>
     <input type="text" class="thing-name" value="${entity.name}"
@@ -206,7 +237,7 @@ function createEntityNode(entity) {
 }
 
 function createStaticEntityNode(entity) {
-  let html = `<div class="thing entity static">
+  let html = `<div class="thing entity static" id="static_${entity.id}">
     <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="thing-name">${entity.name}</div>
     <div class="entity-icon">${entity.icon}</div>
@@ -220,7 +251,7 @@ function createStaticEntityNode(entity) {
 }
 
 function createResourceNode(resource) {
-  let html = `<div class="thing resource">
+  let html = `<div class="thing resource" id="${resource.id}">
     <div class="minibutton randomize" title="Randomize this resource">🎲</div>
     <div class="minibutton delete" title="Delete this resource">🗑️</div>
     <input type="text" class="thing-name" value="${resource.name}"
@@ -238,7 +269,7 @@ function createResourceNode(resource) {
 }
 
 function createStaticResourceNode(resource) {
-  let html = `<div class="thing resource static">
+  let html = `<div class="thing resource static" id="static_${resource.id}">
     <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="thing-name">${resource.name}</div>
     <div class="tags">`;
@@ -251,17 +282,17 @@ function createStaticResourceNode(resource) {
 }
 
 function createRelationshipNode(relationship) {
-  let html = `<div class="relationship">
+  let html = `<div class="relationship" id="${relationship.id}">
     <div class="minibutton randomize" title="Randomize this relationship">🎲</div>
     <span class="not">NOT </span>
     <input type="text" value="${relationship.lhs}" placeholder="Something">
     <select>
-      <option value=""${relationship.type === 'is related to' ? ' selected' : ''}>is related to</option>
-      <option value=""${relationship.type === 'consumes' ? ' selected' : ''}>consumes</option>
-      <option value=""${relationship.type === 'produces' ? ' selected' : ''}>produces</option>
-      <option value=""${relationship.type === 'defeats' ? ' selected' : ''}>defeats</option>
-      <option value=""${relationship.type === 'avoids' ? ' selected' : ''}>avoids</option>
-      <option value=""${relationship.type === 'collides with' ? ' selected' : ''}>collides with</option>
+      <option value=""${relationship.reltype === 'is related to' ? ' selected' : ''}>is related to</option>
+      <option value=""${relationship.reltype === 'consumes' ? ' selected' : ''}>consumes</option>
+      <option value=""${relationship.reltype === 'produces' ? ' selected' : ''}>produces</option>
+      <option value=""${relationship.reltype === 'defeats' ? ' selected' : ''}>defeats</option>
+      <option value=""${relationship.reltype === 'avoids' ? ' selected' : ''}>avoids</option>
+      <option value=""${relationship.reltype === 'collides with' ? ' selected' : ''}>collides with</option>
     </select>
     <input type="text" value="${relationship.rhs}" placeholder="something">
     <div class="minibutton delete" title="Delete this relationship">🗑️</div>
@@ -281,9 +312,9 @@ function createRelationshipNode(relationship) {
 }
 
 function createStaticRelationshipNode(relationship) {
-  let html = `<div class="relationship static">
+  let html = `<div class="relationship static" id="static_${relationship.id}">
     <span class="lhs">${relationship.lhs}</span>
-    <span> ${relationship.type} </span>
+    <span> ${relationship.reltype} </span>
     <span class="rhs">${relationship.rhs}</span>
     <div class="minibutton import" title="Add to intent">↩️</div>
   </div>`;
@@ -353,7 +384,7 @@ function createTagEditorNode(thingType, thingNode) {
 }
 
 function createTriggerNode(trigger) {
-  let html = `<div class="trigger">
+  let html = `<div class="trigger" id="${trigger.id}">
     <div class="minibutton randomize" title="Randomize this trigger">🎲</div>
     <div class="minibutton delete" title="Delete this trigger">🗑️</div>
     <!--<span class="not">NOT </span>-->
@@ -455,7 +486,7 @@ function createTriggerNode(trigger) {
 }
 
 function createStaticTriggerNode(trigger) {
-  let html = `<div class="trigger static">
+  let html = `<div class="trigger static" id="static_${trigger.id}">
     <div class="minibutton import" title="Add to intent">↩️</div>
     <!--<span class="not">NOT </span>-->
     <div class="lhs">
@@ -481,59 +512,65 @@ function openTagEditor(thingNode) {
   thingNode.appendChild(tagEditorNode);
 }
 
-for (let entity of exampleIntent.entities) {
-  let node = createEntityNode(entity);
-  intentEntitiesList.lastElementChild.insertAdjacentElement('beforebegin', node);
-  let staticNode = createStaticEntityNode(entity);
-  generatedEntitiesList.appendChild(staticNode);
+for (let thing of Object.values(exampleIntent)) {
+  if (thing.type === 'entity') {
+    let node = createEntityNode(thing);
+    intentEntitiesList.lastElementChild.insertAdjacentElement('beforebegin', node);
+    let staticNode = createStaticEntityNode(thing);
+    generatedEntitiesList.appendChild(staticNode);
+  } else if (thing.type === 'resource') {
+    let node = createResourceNode(thing);
+    intentResourcesList.lastElementChild.insertAdjacentElement('beforebegin', node);
+    let staticNode = createStaticResourceNode(thing);
+    generatedResourcesList.appendChild(staticNode);
+  } else if (thing.type === 'relationship') {
+    let node = createRelationshipNode(thing);
+    intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
+    let staticNode = createStaticRelationshipNode(thing);
+    generatedRelationshipsList.appendChild(staticNode);
+  } else if (thing.type === 'trigger') {
+    let node = createTriggerNode(thing);
+    intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
+    let staticNode = createStaticTriggerNode(thing);
+    generatedTriggersList.appendChild(staticNode);
+  } else {
+    console.error('invalid thing type', thing);
+  } 
 }
-for (let resource of exampleIntent.resources) {
-  let node = createResourceNode(resource);
-  intentResourcesList.lastElementChild.insertAdjacentElement('beforebegin', node);
-  let staticNode = createStaticResourceNode(resource);
-  generatedResourcesList.appendChild(staticNode);
-}
-for (let relationship of exampleIntent.relationships) {
-  let node = createRelationshipNode(relationship);
-  intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
-  let staticNode = createStaticRelationshipNode(relationship);
-  generatedRelationshipsList.appendChild(staticNode);
-}
-for (let trigger of exampleIntent.triggers) {
-  let node = createTriggerNode(trigger);
-  intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
-  let staticNode = createStaticTriggerNode(trigger);
-  generatedTriggersList.appendChild(staticNode);
-}
-
 
 newEntityButton.onclick = function() {
   let defaultEntity = {
+    type: 'entity',
     name: "",
     icon: "❓",
     tags: [{family: 'optional', value: 'optional'}]
   };
+  addThingToIntent(defaultEntity);
   let node = createEntityNode(defaultEntity);
   intentEntitiesList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
 newResourceButton.onclick = function() {
   let defaultResource = {
+    type: 'resource',
     name: "",
     tags: [{family: 'optional', value: 'optional'}]
   };
+  addThingToIntent(defaultResource);
   let node = createResourceNode(defaultResource);
   intentResourcesList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
 newRelationshipButton.onclick = function() {
-  let defaultRelationship = {lhs: '', type: 'is related to', rhs: ''};
+  let defaultRelationship = {type: 'relationship', lhs: '', reltype: 'is related to', rhs: ''};
+  addThingToIntent(defaultRelationship);
   let node = createRelationshipNode(defaultRelationship);
   intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
 newTriggerButton.onclick = function() {
-  let defaultTrigger = {lhs: [], rhs: []};
+  let defaultTrigger = {type: 'trigger', lhs: [], rhs: []};
+  addThingToIntent(defaultTrigger);
   let node = createTriggerNode(defaultTrigger);
   intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
