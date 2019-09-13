@@ -135,8 +135,7 @@ let exampleIntent = {
       rhs: "Depression"
     }
   ],
-  triggers: [{when: [], then: []}
-  /*
+  triggers: [
     {
       when: [
         {
@@ -145,10 +144,10 @@ let exampleIntent = {
         }
       ],
       then: [
-        {action: ''}
+        {action: 'Spawn entity at', params: ['Friend', '0,0']}
       ]
     }
-  */]
+  ]
 }
 
 function createNode(html) {
@@ -207,7 +206,7 @@ function createEntityNode(entity) {
 }
 
 function createStaticEntityNode(entity) {
-  let html = `<div class="thing entity">
+  let html = `<div class="thing entity static">
     <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="thing-name">${entity.name}</div>
     <div class="entity-icon">${entity.icon}</div>
@@ -239,7 +238,7 @@ function createResourceNode(resource) {
 }
 
 function createStaticResourceNode(resource) {
-  let html = `<div class="thing resource">
+  let html = `<div class="thing resource static">
     <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="thing-name">${resource.name}</div>
     <div class="tags">`;
@@ -282,7 +281,7 @@ function createRelationshipNode(relationship) {
 }
 
 function createStaticRelationshipNode(relationship) {
-  let html = `<div class="relationship">
+  let html = `<div class="relationship static">
     <span class="lhs">${relationship.lhs}</span>
     <span> ${relationship.type} </span>
     <span class="rhs">${relationship.rhs}</span>
@@ -455,6 +454,21 @@ function createTriggerNode(trigger) {
   return node;
 }
 
+function createStaticTriggerNode(trigger) {
+  let html = `<div class="trigger static">
+    <div class="minibutton import" title="Add to intent">↩️</div>
+    <!--<span class="not">NOT </span>-->
+    <div class="lhs">
+      <h4>When</h4>
+      <div class="contents">${trigger.when[0].cond}: ${trigger.when[0].params.join(', ')}</div>
+    </div>
+    <div class="rhs">
+      <h4>Then</h4>
+      <div class="contents">${trigger.then[0].action}: ${trigger.then[0].params.join(', ')}</div>
+    </div>
+  </div>`;
+  return createNode(html);
+}
 
 function openTagEditor(thingNode) {
   let existingTagEditorNode = document.querySelector('.tag-editor');
@@ -488,8 +502,8 @@ for (let relationship of exampleIntent.relationships) {
 for (let trigger of exampleIntent.triggers) {
   let node = createTriggerNode(trigger);
   intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
-  /*let staticNode = createStaticRelationshipNode(relationship);
-  generatedTriggersList.appendChild(staticNode);*/
+  let staticNode = createStaticTriggerNode(trigger);
+  generatedTriggersList.appendChild(staticNode);
 }
 
 

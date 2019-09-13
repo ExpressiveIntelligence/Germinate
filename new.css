@@ -114,6 +114,10 @@ input[type="text"] {
   border-top-left-radius: 1rem;
   border-bottom-left-radius: 1rem;
 }
+.trigger.static .contents {
+  line-height: 1.2;
+  padding: .25rem;
+}
 h2, h3 {
   text-align: center;
 }
