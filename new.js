@@ -5,6 +5,42 @@ function upcaseFirst(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+let triggerConditions = {
+  rvalGte: ['resource', 'value'],
+  rvalLte: ['resource', 'value'],
+  collide: ['first entity', 'second entity'],
+  entClick: ['entity'],
+  mouseClick: [],
+  mouseHold: [],
+  keyPress: ['key'],
+  keyHold: ['key'],
+  timerDone: ['timer'],
+  tick: []
+};
+
+let triggerActions = {
+  setRval: ['resource', 'value'],
+  incRval: ['resource', 'amount'],
+  decRval: ['resource', 'amount'],
+  teleport: ['entity', 'target'],
+  moveEntToward: ['entity', 'target'],
+  moveEntAway: ['entity', 'target'],
+  moveEntDir: ['entity', 'direction'],
+  restitution: ['first entity', 'second entity'],
+  rotEntBy: ['entity', 'angle'],
+  entLookAt: ['entity', 'target'],
+  setEntSprite: ['entity', 'sprite'],
+  setEntColor: ['entity', 'color'],
+  setEntSize: ['entity', 'size'],
+  spawnEnt: ['entity', 'target'],
+  deleteEnt: ['entity'],
+  win: ['message'],
+  lose: ['message'],
+  timerStart: ['timer'],
+  timerPause: ['timer'],
+  timerRestart: ['timer']
+};
+
 let tagFamilies = {
   optional: {
     name: 'optional',
@@ -99,7 +135,20 @@ let exampleIntent = {
       rhs: "Depression"
     }
   ],
-  triggers: []
+  triggers: [{when: [], then: []}
+  /*
+    {
+      when: [
+        {
+          cond: 'Resource greater than value',
+          params: ['Depression', '5']
+        }
+      ],
+      then: [
+        {action: ''}
+      ]
+    }
+  */]
 }
 
 function createNode(html) {
@@ -304,6 +353,109 @@ function createTagEditorNode(thingType, thingNode) {
   return node;
 }
 
+function createTriggerNode(trigger) {
+  let html = `<div class="trigger">
+    <div class="minibutton randomize" title="Randomize this trigger">🎲</div>
+    <div class="minibutton delete" title="Delete this trigger">🗑️</div>
+    <!--<span class="not">NOT </span>-->
+    <div class="lhs">
+      <h4>When</h4>
+      <select class="whenSelect">
+        <option value="rvalGte">Resource value greater than</option>
+        <option value="rvalLte">Resource value less than</option>
+        <option value="collide">Entity collides with entity</option>
+        <option value="entClick">Entity is clicked</option>
+        <option value="mouseClick">Mouse is clicked</option>
+        <option value="mouseHold">Mouse is held</option>
+        <option value="keyPress">Keyboard key is pressed</option>
+        <option value="keyHold">Keyboard key is held</option>
+        <option value="timerDone">Timer finishes</option>
+        <option value="tick">Every frame</option>
+      </select>
+    </div>
+    <div class="rhs">
+      <h4>Then</h4>
+      <select class="thenSelect">
+        <option value="setRval">Set resource value</option>
+        <option value="incRval">Increase resource value</option>
+        <option value="decRval">Decrease resource value</option>
+        <option value="teleport">Teleport entity to</option>
+        <option value="moveEntToward">Move entity toward</option>
+        <option value="moveEntAway">Move entity away from</option>
+        <option value="moveEntDir">Move entity in direction</option>
+        <option value="restitution">Prevent entity overlap</option>
+        <option value="rotEntBy">Rotate entity by angle</option>
+        <option value="entLookAt">Make entity look at</option>
+        <option value="setEntSprite">Set entity sprite</option>
+        <option value="setEntColor">Set entity color</option>
+        <option value="setEntSize">Set entity size</option>
+        <!--<option value="">Make entity draggable</option>-->
+        <option value="spawnEnt">Spawn entity at</option>
+        <option value="deleteEnt">Delete entity</option>
+        <!--<option value="">Draw color at point</option>
+        <option value="">Clear color at point</option>
+        <option value="">Fill screen with color</option>-->
+        <option value="win">Win game</option>
+        <option value="lose">Lose game</option>
+        <option value="timerStart">Start timer</option>
+        <option value="timerPause">Pause timer</option>
+        <option value="timerRestart">Restart timer</option>
+      </select>
+    </div>
+  </div>`;
+  let node = createNode(html);
+  wireUpOnclickHandlers(node);
+  let whenSelect = node.querySelector('.whenSelect');
+  whenSelect.onchange = function() {
+    // remove existing slot pairs if any
+    let existingSlotPairs = whenSelect.parentNode.querySelectorAll('.slotPair');
+    for (let existingSlotPair of existingSlotPairs) {
+      existingSlotPair.remove();
+    }
+    // now do the actual work
+    let value = whenSelect.options[whenSelect.selectedIndex].value;
+    let slots = triggerConditions[value];
+    for (let slot of slots) {
+      let slotPair = createNode(`<div class="slotPair">
+        <span>${upcaseFirst(slot)}</span>
+        <input type="text">
+      </div>`);
+      whenSelect.parentNode.appendChild(slotPair);
+    }
+  };
+  let thenSelect = node.querySelector('.thenSelect');
+  thenSelect.onchange = function() {
+    // remove existing slot pairs if any
+    let existingSlotPairs = thenSelect.parentNode.querySelectorAll('.slotPair');
+    for (let existingSlotPair of existingSlotPairs) {
+      existingSlotPair.remove();
+    }
+    // now do the actual work
+    let value = thenSelect.options[thenSelect.selectedIndex].value;
+    let slots = triggerActions[value];
+    for (let slot of slots) {
+      let slotPair = createNode(`<div class="slotPair">
+        <span>${upcaseFirst(slot)}</span>
+        <input type="text">
+      </div>`);
+      thenSelect.parentNode.appendChild(slotPair);
+    }
+  }
+  whenSelect.onchange();
+  thenSelect.onchange();
+  node.onclick = function() {
+    if (negateModeActive) {
+      if (node.classList.contains('negated')) {
+        node.classList.remove('negated');
+      } else {
+        node.classList.add('negated');
+      }
+    }
+  }
+  return node;
+}
+
+
 function openTagEditor(thingNode) {
   let existingTagEditorNode = document.querySelector('.tag-editor');
   if (existingTagEditorNode) existingTagEditorNode.remove();
@@ -333,11 +485,13 @@ for (let relationship of exampleIntent.relationships) {
   let staticNode = createStaticRelationshipNode(relationship);
   generatedRelationshipsList.appendChild(staticNode);
 }
-/*
 for (let trigger of exampleIntent.triggers) {
-  createTriggerNode(trigger);
+  let node = createTriggerNode(trigger);
+  intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
+  /*let staticNode = createStaticRelationshipNode(relationship);
+  generatedTriggersList.appendChild(staticNode);*/
 }
-*/
+
 
 newEntityButton.onclick = function() {
   let defaultEntity = {
@@ -362,6 +516,12 @@ newRelationshipButton.onclick = function() {
   let defaultRelationship = {lhs: '', type: 'is related to', rhs: ''};
   let node = createRelationshipNode(defaultRelationship);
   intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
+}
+
+newTriggerButton.onclick = function() {
+  let defaultTrigger = {lhs: [], rhs: []};
+  let node = createTriggerNode(defaultTrigger);
+  intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
 let negateModeActive = false;

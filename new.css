@@ -81,7 +81,7 @@ section {
 .relationship .lhs, .relationship .rhs {
   font-weight: bold;
 }
-.relationship.new-button {
+.relationship.new-button, .trigger.new-button {
   font-size: 1.5rem;
 }
 input[type="text"] {
@@ -89,6 +89,30 @@ input[type="text"] {
 }
 .relationship.negated input[type="text"] {
   width: 80px;
+}
+.trigger {
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  display: flex;
+  flex-flow: row wrap;
+  margin-bottom: 1rem;
+  position: relative;
+  text-align: center;
+}
+.trigger.new-button {
+  display: block;
+  padding: 5px 2px;
+}
+.trigger .lhs, .trigger .rhs {
+  width: 50%;
+  padding: 5px 2px;
+}
+.trigger .lhs {
+  background: #fef;
+  border-right: 1px solid #ccc;
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
 }
 h2, h3 {
   text-align: center;
