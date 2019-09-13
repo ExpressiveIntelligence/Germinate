@@ -65,6 +65,7 @@ section {
   border-radius: 1rem;
   margin-bottom: 1rem;
   padding: 5px 2px;
+  position: relative;
   text-align: center;
 }
 .relationship.negated {
@@ -99,37 +100,34 @@ h3 {
 .thing-name {
   font-size: 1.1rem;
   margin-bottom: 5px;
-  /*width: 90% !important;*/
 }
 input.thing-name {
-  width: 90%;
+  width: 80%;
 }
 .entity-icon {
   font-size: 2rem;
-}
-.minibuttons {
-  position: relative;
-}
-.minibuttons .minibutton {
-  position: absolute;
-  top: 0;
 }
 .minibutton {
   background: orange;
   border-radius: 1rem;
   cursor: pointer;
-  display: inline-block;
   font-size: 1.25rem;
   line-height: 1;
   padding: 0;
   padding-top: 5px;
   padding-left: 2px;
+  position: absolute;
+  top: 5px;
 }
 .minibutton.randomize {
-  left: 2px;
+  left: 5px;
 }
 .minibutton.delete {
-  right: 2px;
+  right: 5px;
+}
+.minibutton.import {
+  background: green;
+  right: 5px;
 }
 .generate-games {
   background: rgb(0,150,255);

@@ -1,4 +1,5 @@
 // ❌
+// ↩
 
 function upcaseFirst(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
@@ -139,10 +140,8 @@ function wireUpOnclickHandlers(thingNode) {
 
 function createEntityNode(entity) {
   let html = `<div class="thing entity">
-    <div class="minibuttons">
-      <div class="minibutton randomize">🎲</div>
-      <div class="minibutton delete">🗑️</div>
-    </div>
+    <div class="minibutton randomize" title="Randomize this entity">🎲</div>
+    <div class="minibutton delete" title="Delete this entity">🗑️</div>
     <input type="text" class="thing-name" value="${entity.name}"
            placeholder="[random name]">
     <div class="entity-icon">${entity.icon}</div>
@@ -160,6 +159,7 @@ function createEntityNode(entity) {
 
 function createStaticEntityNode(entity) {
   let html = `<div class="thing entity">
+    <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="thing-name">${entity.name}</div>
     <div class="entity-icon">${entity.icon}</div>
     <div class="tags">`;
@@ -173,10 +173,8 @@ function createStaticEntityNode(entity) {
 
 function createResourceNode(resource) {
   let html = `<div class="thing resource">
-    <div class="minibuttons">
-      <div class="minibutton randomize">🎲</div>
-      <div class="minibutton delete">🗑️</div>
-    </div>
+    <div class="minibutton randomize" title="Randomize this resource">🎲</div>
+    <div class="minibutton delete" title="Delete this resource">🗑️</div>
     <input type="text" class="thing-name" value="${resource.name}"
            placeholder="[random name]">
     <div class="tags">`;
@@ -193,6 +191,7 @@ function createResourceNode(resource) {
 
 function createStaticResourceNode(resource) {
   let html = `<div class="thing resource">
+    <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="thing-name">${resource.name}</div>
     <div class="tags">`;
   for (let tag of resource.tags) {
@@ -205,7 +204,7 @@ function createStaticResourceNode(resource) {
 
 function createRelationshipNode(relationship) {
   let html = `<div class="relationship">
-    <div class="minibutton randomize">🎲</div>
+    <div class="minibutton randomize" title="Randomize this relationship">🎲</div>
     <span class="not">NOT </span>
     <input type="text" value="${relationship.lhs}" placeholder="Something">
     <select>
@@ -217,7 +216,7 @@ function createRelationshipNode(relationship) {
       <option value=""${relationship.type === 'collides with' ? ' selected' : ''}>collides with</option>
     </select>
     <input type="text" value="${relationship.rhs}" placeholder="something">
-    <div class="minibutton delete">🗑️</div>
+    <div class="minibutton delete" title="Delete this relationship">🗑️</div>
   </div>`;
   let node = createNode(html);
   wireUpOnclickHandlers(node);
@@ -238,6 +237,7 @@ function createStaticRelationshipNode(relationship) {
     <span class="lhs">${relationship.lhs}</span>
     <span> ${relationship.type} </span>
     <span class="rhs">${relationship.rhs}</span>
+    <div class="minibutton import" title="Add to intent">↩️</div>
   </div>`;
   let node = createNode(html);
   return node;
@@ -267,6 +267,7 @@ function createTagEditorNode(thingType, thingNode) {
     // TODO dear god this is brittle.
     // maybe make thing tag nodes change the active editor tag node if you click em while the editor is open?
     // maybe check if the tag family we're changing is negated, and persist the negation if it is?
+    // maybe change inner text of the existing thing tag node if there is one, to preserve order?
     tagNode.onclick = function() {
       let familyText = tagNode.parentNode.innerText.split(':')[0];
       console.log(familyText);
