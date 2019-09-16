@@ -2,6 +2,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  font-family: Helvetica;
+  font-weight: 100;
 }
 .columns {
   display: flex;
@@ -14,19 +16,19 @@ section {
   margin-bottom: 1rem;
 }
 .intent {
-  background: #eff;
+  background: cornsilk;
   width: 30%;
 }
 .thisgamerules {
-  background: #ffe;
+  background: cornsilk;
   width: 30%;
 }
 .thisgame {
-  background: #efe;
+  background: cornsilk;
   width: 40%;
 }
 #toggleNegateMode {
-  color: maroon;
+  color: orangered;
   cursor: pointer;
   font-size: .8rem;
   text-align: center;
@@ -37,39 +39,60 @@ section {
   flex-flow: row wrap;
 }
 .thing {
-  background: #eee;
-  border: 1px solid #ccc;
-  border-radius: 1rem;
+  background: white;
+  border-radius: .25rem;
   margin-bottom: 1rem;
   min-height: 100px;
   padding: 5px 2px;
   position: relative;
   text-align: center;
   width: 48%;
+  z-index: 2;
+
+  padding: 10px 10px 20px 10px;
+  box-shadow: 2px 2px 5px lightgrey;
 }
 .thing:nth-child(odd) {
   margin-right: 4%;
+}
+.thing.entity {
+  background: gold;
+}
+.thing.entity.new-button {
+  background: transparent;
+  border-color: gold;
+  color: gold;
+}
+.thing.resource {
+  background: cornflowerblue; /* also gold, */
+}
+.thing.resource.new-button{
+  background: transparent;
+  border-color: cornflowerblue;
+  color: cornflowerblue;
+
 }
 .new-button {
   background: transparent !important;
   color: #ccc;
   cursor: pointer;
   line-height: 1;
-  border: 3px dotted #ccc !important;
+  border: 3px dotted;
   font-size: 5rem;
   font-weight: bold;
+  z-index: 1;
 }
 .relationship {
-  background: #eee;
-  border: 1px solid #ccc;
-  border-radius: 1rem;
+  background: lightgreen;
+  border-radius: .25rem;
   margin-bottom: 1rem;
   padding: 5px 2px;
   position: relative;
   text-align: center;
+  box-shadow: 2px 2px 5px lightgrey;
 }
 .relationship.negated {
-  background: maroon;
+  background: orangered;
 }
 .relationship .not {
   color: white;
@@ -91,9 +114,9 @@ input[type="text"] {
   width: 80px;
 }
 .trigger {
-  background: #eee;
-  border: 1px solid #ccc;
-  border-radius: 1rem;
+  background: #fd8383;
+  box-shadow: 2px 2px 5px lightgrey;
+  border-radius: .25rem;
   display: flex;
   flex-flow: row wrap;
   margin-bottom: 1rem;
@@ -109,10 +132,10 @@ input[type="text"] {
   padding: 5px 2px;
 }
 .trigger .lhs {
-  background: #fef;
+  background: #fdc5c5;
   border-right: 1px solid #ccc;
-  border-top-left-radius: 1rem;
-  border-bottom-left-radius: 1rem;
+  border-top-left-radius: .25rem;
+  border-bottom-left-radius: .25rem;
 }
 .trigger.static .contents {
   line-height: 1.2;
@@ -120,6 +143,7 @@ input[type="text"] {
 }
 h2, h3 {
   text-align: center;
+  font-weight: bold;
 }
 h3 {
   margin-bottom: .5rem;
@@ -128,6 +152,9 @@ h3 {
 .thing-name {
   font-size: 1.1rem;
   margin-bottom: 5px;
+  background: transparent;
+  border: none;
+  font-family: 'Bad Script';
 }
 input.thing-name {
   width: 80%;
@@ -168,7 +195,7 @@ input.thing-name {
   text-align: center;
 }
 .tag {
-  background-color: cornflowerblue;
+  background-color: mediumturquoise;
   border-radius: 5px;
   color: white;
   cursor: pointer;
@@ -180,7 +207,7 @@ input.thing-name {
   max-width: 90%;
 }
 .tag.negated {
-  background: maroon;
+  background: orangered;
 }
 .tag.negated:before {
   content: "NOT ";
@@ -228,7 +255,8 @@ input.thing-name {
 }
 .gametitle {
   display: block;
-  font-size: 2rem;
+  font-family: 'Bad Script';
+  font-size: 1.8rem;
   font-weight: bold;
   margin: 0 auto;
   margin-bottom: 1rem;
