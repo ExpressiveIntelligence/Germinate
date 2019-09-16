@@ -16,39 +16,40 @@ function createNode(html) {
 /// static data structure setup
 
 let triggerConditions = {
-  rvalGte: ['resource', 'value'],
-  rvalLte: ['resource', 'value'],
-  collide: ['first entity', 'second entity'],
-  entClick: ['entity'],
-  mouseClick: [],
-  mouseHold: [],
-  keyPress: ['key'],
-  keyHold: ['key'],
-  timerDone: ['timer'],
-  tick: []
+  tick: {desc: 'Every frame', params: []},
+  rvalGte: {desc: 'Resource greater than value', params: ['resource', 'value']},
+  rvalLte: {desc: 'Resource less than value', params: ['resource', 'value']},
+  collide: {desc: 'Entity collides with entity', params: ['first entity', 'second entity']},
+  entClick: {desc: 'Entity is clicked', params: ['entity']},
+  mouseClick: {desc: 'Mouse is clicked', params: []},
+  mouseHold: {desc: 'Mouse is held', params: []},
+  keyPress: {desc: 'Keyboard key is pressed', params: ['key']},
+  keyHold: {desc: 'Keyboard key is held', params: ['key']},
+  timerDone: {desc: 'Timer finishes', params: ['timer']}
 };
 
 let triggerActions = {
-  setRval: ['resource', 'value'],
-  incRval: ['resource', 'amount'],
-  decRval: ['resource', 'amount'],
-  teleport: ['entity', 'target'],
-  moveEntToward: ['entity', 'target'],
-  moveEntAway: ['entity', 'target'],
-  moveEntDir: ['entity', 'direction'],
-  restitution: ['first entity', 'second entity'],
-  rotEntBy: ['entity', 'angle'],
-  entLookAt: ['entity', 'target'],
-  setEntSprite: ['entity', 'sprite'],
-  setEntColor: ['entity', 'color'],
-  setEntSize: ['entity', 'size'],
-  spawnEnt: ['entity', 'target'],
-  deleteEnt: ['entity'],
-  win: ['message'],
-  lose: ['message'],
-  timerStart: ['timer'],
-  timerPause: ['timer'],
-  timerRestart: ['timer']
+  nothing: {desc: 'Do nothing', params: []},
+  setRval: {desc: 'Set resource value', params: ['resource', 'value']},
+  incRval: {desc: 'Increase resource value', params: ['resource', 'amount']},
+  decRval: {desc: 'Decrease resource value', params: ['resource', 'amount']},
+  teleport: {desc: 'Teleport entity to', params: ['entity', 'target']},
+  moveEntToward: {desc: 'Move entity toward', params: ['entity', 'target']},
+  moveEntAway: {desc: 'Move entity away from', params: ['entity', 'target']},
+  moveEntDir: {desc: 'Move entity in direction', params: ['entity', 'direction']},
+  restitution: {desc: 'Prevent entity overlap', params: ['first entity', 'second entity']},
+  rotEntBy: {desc: 'Rotate entity by angle', params: ['entity', 'angle']},
+  entLookAt: {desc: 'Make entity look at', params: ['entity', 'target']},
+  setEntSprite: {desc: 'Set entity sprite', params: ['entity', 'sprite']},
+  setEntColor: {desc: 'Set entity color', params: ['entity', 'color']},
+  setEntSize: {desc: 'Set entity size', params: ['entity', 'size']},
+  spawnEnt: {desc: 'Spawn entity at', params: ['entity', 'target']},
+  deleteEnt: {desc: 'Delete entity', params: ['entity']},
+  win: {desc: 'Win game', params: ['message']},
+  lose: {desc: 'Lose game', params: ['message']},
+  timerStart: {desc: 'Start timer', params: ['timer']},
+  timerPause: {desc: 'Pause timer', params: ['timer']},
+  timerRestart: {desc: 'Restart timer', params: ['timer']}
 };
 
 let tagFamilies = {
@@ -90,7 +91,6 @@ function getNextID() {
 /// functions for messing with tags
 
 function parseTag(fullTagText) {
-  console.log('parseTag', fullTagText);
   let tagFamily = Object.values(tagFamilies).find(family => fullTagText.startsWith(family.text));
   let tagValue = fullTagText.replace(tagFamily.text, '').trim();
   return {family: tagFamily.name, familyInfo: tagFamily, value: tagValue};
@@ -179,15 +179,8 @@ let exampleRelationships = [
 
 let exampleTriggers = [
   {
-    when: [
-      {
-        cond: 'Resource greater than value',
-        params: ['Depression', '5']
-      }
-    ],
-    then: [
-      {action: 'Spawn entity at', params: ['Friend', '0,0']}
-    ]
+    when: [{cond: 'Every tick', params: []}],
+    then: [{action: 'Do nothing', params: []}]
   }
 ];
 
@@ -455,9 +448,7 @@ function createTagEditorNode(thingType, thingNode) {
     // maybe change inner text of the existing thing tag node if there is one, to preserve order?
     tagNode.onclick = function() {
       let familyText = tagNode.parentNode.innerText.split(':')[0];
-      console.log(familyText);
       let family = Object.values(tagFamilies).find(tf => tf.text === familyText);
-      console.log(family);
       let thingTagNodes = [...thingNode.querySelectorAll('.tag')];
       if (tagNode.classList.contains('active')) {
         tagNode.classList.remove('active');
@@ -490,53 +481,29 @@ function createTagEditorNode(thingType, thingNode) {
 }
 
 function createTriggerNode(trigger) {
+  let whenOptionsHtml = '';
+  for (let cond of Object.keys(triggerConditions)) {
+    let desc = triggerConditions[cond].desc;
+    whenOptionsHtml += `<option value="${cond}"${trigger.when[0].cond === desc ? 'selected' : ''}>
+                        ${desc}</option>`;
+  }
+  let thenOptionsHtml = '';
+  for (let action of Object.keys(triggerActions)) {
+    let desc = triggerActions[action].desc;
+    thenOptionsHtml += `<option value="${action}"${trigger.then[0].action === desc ? 'selected' : ''}>
+                        ${desc}</option>`;
+  }
   let html = `<div class="trigger" id="${trigger.id}">
     <div class="minibutton randomize" title="Randomize this trigger">🎲</div>
     <div class="minibutton delete" title="Delete this trigger">🗑️</div>
     <!--<span class="not">NOT </span>-->
     <div class="lhs">
       <h4>When</h4>
-      <select class="whenSelect">
-        <option value="rvalGte">Resource value greater than</option>
-        <option value="rvalLte">Resource value less than</option>
-        <option value="collide">Entity collides with entity</option>
-        <option value="entClick">Entity is clicked</option>
-        <option value="mouseClick">Mouse is clicked</option>
-        <option value="mouseHold">Mouse is held</option>
-        <option value="keyPress">Keyboard key is pressed</option>
-        <option value="keyHold">Keyboard key is held</option>
-        <option value="timerDone">Timer finishes</option>
-        <option value="tick">Every frame</option>
-      </select>
+      <select class="whenSelect">${whenOptionsHtml}</select>
     </div>
     <div class="rhs">
       <h4>Then</h4>
-      <select class="thenSelect">
-        <option value="setRval">Set resource value</option>
-        <option value="incRval">Increase resource value</option>
-        <option value="decRval">Decrease resource value</option>
-        <option value="teleport">Teleport entity to</option>
-        <option value="moveEntToward">Move entity toward</option>
-        <option value="moveEntAway">Move entity away from</option>
-        <option value="moveEntDir">Move entity in direction</option>
-        <option value="restitution">Prevent entity overlap</option>
-        <option value="rotEntBy">Rotate entity by angle</option>
-        <option value="entLookAt">Make entity look at</option>
-        <option value="setEntSprite">Set entity sprite</option>
-        <option value="setEntColor">Set entity color</option>
-        <option value="setEntSize">Set entity size</option>
-        <!--<option value="">Make entity draggable</option>-->
-        <option value="spawnEnt">Spawn entity at</option>
-        <option value="deleteEnt">Delete entity</option>
-        <!--<option value="">Draw color at point</option>
-        <option value="">Clear color at point</option>
-        <option value="">Fill screen with color</option>-->
-        <option value="win">Win game</option>
-        <option value="lose">Lose game</option>
-        <option value="timerStart">Start timer</option>
-        <option value="timerPause">Pause timer</option>
-        <option value="timerRestart">Restart timer</option>
-      </select>
+      <select class="thenSelect">${thenOptionsHtml}</select>
     </div>
   </div>`;
   let node = createNode(html);
@@ -550,7 +517,7 @@ function createTriggerNode(trigger) {
     }
     // now do the actual work
     let value = whenSelect.options[whenSelect.selectedIndex].value;
-    let slots = triggerConditions[value];
+    let slots = triggerConditions[value].params;
     for (let slot of slots) {
       let slotPair = createNode(`<div class="slotPair">
         <span>${upcaseFirst(slot)}</span>
@@ -568,7 +535,7 @@ function createTriggerNode(trigger) {
     }
     // now do the actual work
     let value = thenSelect.options[thenSelect.selectedIndex].value;
-    let slots = triggerActions[value];
+    let slots = triggerActions[value].params;
     for (let slot of slots) {
       let slotPair = createNode(`<div class="slotPair">
         <span>${upcaseFirst(slot)}</span>
@@ -577,8 +544,18 @@ function createTriggerNode(trigger) {
       thenSelect.parentNode.appendChild(slotPair);
     }
   }
+  // dynamically create param fields
   whenSelect.onchange();
   thenSelect.onchange();
+  // populate param fields with appropriate values
+  let whenParamFields = node.querySelectorAll('.lhs input[type="text"]');
+  let thenParamFields = node.querySelectorAll('.rhs input[type="text"]');
+  for (let i = 0; i < trigger.when[0].params.length; i++) {
+    whenParamFields[i].value = trigger.when[0].params[i];
+  }
+  for (let i = 0; i < trigger.then[0].params.length; i++) {
+    thenParamFields[i].value = trigger.then[0].params[i];
+  }
   node.onclick = function() {
     if (negateModeActive) {
       if (node.classList.contains('negated')) {
@@ -681,7 +658,11 @@ newRelationshipButton.onclick = function() {
   intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 newTriggerButton.onclick = function() {
-  let defaultTrigger = {type: 'trigger', lhs: [], rhs: []};
+  let defaultTrigger = {
+    type: 'trigger',
+    when: [{cond: 'Every tick', params: []}],
+    then: [{action: 'Do nothing', params: []}]
+  };
   addThingToIntent(defaultTrigger);
   let node = createTriggerNode(defaultTrigger);
   intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
