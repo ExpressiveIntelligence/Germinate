@@ -95,15 +95,14 @@ function cycleTag(fullTagText) {
   return tagFamily.text + ' ' + tagFamily.tags[nextTagIndex];
 }
 
-
-let exampleIntent = {};
+let intent = {};
 
 function addThingToIntent(thing, type) {
   let id = getNextID();
   thing.id = id;
   if (type) thing.type = type;
   if (!thing.type) console.error('thing must have type!', thing);
-  exampleIntent[id] = thing;
+  intent[id] = thing;
 }
 
 let exampleEntities = [
@@ -222,7 +221,7 @@ function createEntityNode(entity) {
     <div class="minibutton randomize" title="Randomize this entity">🎲</div>
     <div class="minibutton delete" title="Delete this entity">🗑️</div>
     <input type="text" class="thing-name" value="${entity.name}"
-           placeholder="[random name]">
+           placeholder="(random name)">
     <div class="entity-icon">${entity.icon}</div>
     <div class="tags">`;
   for (let tag of entity.tags) {
@@ -255,7 +254,7 @@ function createResourceNode(resource) {
     <div class="minibutton randomize" title="Randomize this resource">🎲</div>
     <div class="minibutton delete" title="Delete this resource">🗑️</div>
     <input type="text" class="thing-name" value="${resource.name}"
-           placeholder="[random name]">
+           placeholder="(random name)">
     <div class="tags">`;
   for (let tag of resource.tags) {
     let tagText = tagFamilies[tag.family].text + ' ' + tag.value;
@@ -512,32 +511,39 @@ function openTagEditor(thingNode) {
   thingNode.appendChild(tagEditorNode);
 }
 
-for (let thing of Object.values(exampleIntent)) {
-  if (thing.type === 'entity') {
-    let node = createEntityNode(thing);
-    intentEntitiesList.lastElementChild.insertAdjacentElement('beforebegin', node);
-    let staticNode = createStaticEntityNode(thing);
-    generatedEntitiesList.appendChild(staticNode);
-  } else if (thing.type === 'resource') {
-    let node = createResourceNode(thing);
-    intentResourcesList.lastElementChild.insertAdjacentElement('beforebegin', node);
-    let staticNode = createStaticResourceNode(thing);
-    generatedResourcesList.appendChild(staticNode);
-  } else if (thing.type === 'relationship') {
-    let node = createRelationshipNode(thing);
-    intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
-    let staticNode = createStaticRelationshipNode(thing);
-    generatedRelationshipsList.appendChild(staticNode);
-  } else if (thing.type === 'trigger') {
-    let node = createTriggerNode(thing);
-    intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
-    let staticNode = createStaticTriggerNode(thing);
-    generatedTriggersList.appendChild(staticNode);
-  } else {
-    console.error('invalid thing type', thing);
-  } 
+// set up initial intent UI
+for (let thing of Object.values(intent)) {
+  let [uiBuilderFunction, targetList] = {
+    entity: [createEntityNode, intentEntitiesList],
+    resource: [createResourceNode, intentResourcesList],
+    relationship: [createRelationshipNode, intentRelationshipsList],
+    trigger: [createTriggerNode, intentTriggersList]
+  }[thing.type];
+  let node = uiBuilderFunction(thing);
+  targetList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
+// set up initial generated game rules UI
+function setCurrentGameRules(rules) {
+  // remove existing UI nodes for previous ruleset
+  for (let targetList of [generatedEntitiesList, generatedResourcesList,
+                          generatedRelationshipsList, generatedTriggersList]) {
+    targetList.innerHTML = '';
+  }
+  // create new UI nodes for things in ruleset
+  for (let thing of Object.values(rules)) {
+    let [uiBuilderFunction, targetList] = {
+      entity: [createStaticEntityNode, generatedEntitiesList],
+      resource: [createStaticResourceNode, generatedResourcesList],
+      relationship: [createStaticRelationshipNode, generatedRelationshipsList],
+      trigger: [createStaticTriggerNode, generatedTriggersList]
+    }[thing.type];
+    targetList.appendChild(uiBuilderFunction(thing));
+  }
+}
+setCurrentGameRules(intent);
+
+// add click handlers to new thing buttons in intent UI
 newEntityButton.onclick = function() {
   let defaultEntity = {
     type: 'entity',
@@ -549,7 +555,6 @@ newEntityButton.onclick = function() {
   let node = createEntityNode(defaultEntity);
   intentEntitiesList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
-
 newResourceButton.onclick = function() {
   let defaultResource = {
     type: 'resource',
@@ -560,14 +565,12 @@ newResourceButton.onclick = function() {
   let node = createResourceNode(defaultResource);
   intentResourcesList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
-
 newRelationshipButton.onclick = function() {
   let defaultRelationship = {type: 'relationship', lhs: '', reltype: 'is related to', rhs: ''};
   addThingToIntent(defaultRelationship);
   let node = createRelationshipNode(defaultRelationship);
   intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
-
 newTriggerButton.onclick = function() {
   let defaultTrigger = {type: 'trigger', lhs: [], rhs: []};
   addThingToIntent(defaultTrigger);
@@ -575,8 +578,8 @@ newTriggerButton.onclick = function() {
   intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
+// add click handler to negate mode button in intent UI
 let negateModeActive = false;
-
 toggleNegateMode.onclick = function() {
   negateModeActive = !negateModeActive;
   toggleNegateMode.innerText = `${negateModeActive ? 'Disable' : 'Enable'} negate mode`;
