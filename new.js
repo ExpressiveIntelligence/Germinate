@@ -1,15 +1,19 @@
 // ❌
 // ↩
 
+/// generic utility functions
+
 function upcaseFirst(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-let lastID = -1;
-function getNextID() {
-  lastID++;
-  return 'id' + lastID;
+function createNode(html) {
+  let div = document.createElement('div');
+  div.innerHTML = html;
+  return div.firstChild;
 }
+
+/// static data structure setup
 
 let triggerConditions = {
   rvalGte: ['resource', 'value'],
@@ -75,6 +79,16 @@ let tagFamilies = {
   }
 };
 
+/// thing ID generation
+
+let lastID = -1;
+function getNextID() {
+  lastID++;
+  return 'id' + lastID;
+}
+
+/// functions for messing with tags
+
 function parseTag(fullTagText) {
   console.log('parseTag', fullTagText);
   let tagFamily = Object.values(tagFamilies).find(family => fullTagText.startsWith(family.text));
@@ -94,6 +108,16 @@ function cycleTag(fullTagText) {
   let nextTagIndex = (tagIndex + 1 >= tagFamily.tags.length) ? 0 : tagIndex + 1;
   return tagFamily.text + ' ' + tagFamily.tags[nextTagIndex];
 }
+
+function negateTag(tagNode) {
+  if (tagNode.classList.contains('negated')) {
+    tagNode.classList.remove('negated');
+  } else {
+    tagNode.classList.add('negated');
+  }
+}
+
+/// set up the initial intent
 
 let intent = {};
 
@@ -180,19 +204,80 @@ for (let trigger of exampleTriggers) {
   addThingToIntent(trigger, 'trigger');
 }
 
-function createNode(html) {
-  let div = document.createElement('div');
-  div.innerHTML = html;
-  return div.firstChild;
+/// set up the initial generated game rules
+
+let gameRules = {};
+
+function addThingToGameRules(thing, type) {
+  let id = getNextID();
+  thing.id = id;
+  if (type) thing.type = type;
+  if (!thing.type) console.error('thing must have type!', thing);
+  gameRules[id] = thing;
 }
 
-function negateTag(tagNode) {
-  if (tagNode.classList.contains('negated')) {
-    tagNode.classList.remove('negated');
-  } else {
-    tagNode.classList.add('negated');
+let gameExampleEntities = [
+  {
+    name: "Friend",
+    icon: "💁",
+    tags: [
+      {family: 'playerAttitude', value: 'good'}
+    ]
   }
+];
+
+let gameExampleResources = [
+  {
+    name: "Depression",
+    tags: [
+      {family: 'playerAttitude', value: 'bad'},
+      {family: 'initialLevel', value: 'low'},
+      {family: 'tendency', value: 'increase slowly'}
+    ]
+  }
+];
+
+let gameExampleRelationships = [
+  {
+    lhs: "Friend",
+    reltype: "collides with",
+    rhs: "Insecurity"
+  },
+  {
+    lhs: "Insecurity",
+    reltype: "produces",
+    rhs: "Depression"
+  }
+];
+
+let gameExampleTriggers = [
+  {
+    when: [
+      {
+        cond: 'Resource greater than value',
+        params: ['Depression', '5']
+      }
+    ],
+    then: [
+      {action: 'Spawn entity at', params: ['Friend', '0,0']}
+    ]
+  }
+];
+
+for (let entity of gameExampleEntities) {
+  addThingToGameRules(entity, 'entity');
 }
+for (let resource of gameExampleResources) {
+  addThingToGameRules(resource, 'resource');
+}
+for (let relationship of gameExampleRelationships) {
+  addThingToGameRules(relationship, 'relationship');
+}
+for (let trigger of gameExampleTriggers) {
+  addThingToGameRules(trigger, 'trigger');
+}
+
+/// other UI stuff
 
 function wireUpOnclickHandlers(thingNode) {
   for (let editTagsLink of thingNode.querySelectorAll('.edit-tags')) {
