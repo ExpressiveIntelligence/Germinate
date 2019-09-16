@@ -299,6 +299,23 @@ function wireUpOnclickHandlers(thingNode) {
       }
     }
   }
+  for (let importButton of thingNode.querySelectorAll('.import')) {
+    importButton.onclick = function() {
+      let thingID = thingNode.id.replace('static_', '');
+      let thing = gameRules[thingID];
+      addThingToIntent(thing);
+      let [uiBuilderFunction, targetList] = {
+        entity: [createEntityNode, intentEntitiesList],
+        resource: [createResourceNode, intentResourcesList],
+        relationship: [createRelationshipNode, intentRelationshipsList],
+        trigger: [createTriggerNode, intentTriggersList]
+      }[thing.type];
+      let node = uiBuilderFunction(thing);
+      targetList.lastElementChild.insertAdjacentElement('beforebegin', node);
+      // TODO if it's an entity or a resource, try to find one in the intent with the same name and merge.
+      // TODO if it's a relationship or trigger, try to find a partial match and merge?
+    }
+  }
 }
 
 function createEntityNode(entity) {
@@ -331,7 +348,9 @@ function createStaticEntityNode(entity) {
     html += `<span class="tag${tag.isNegated ? ' negated' : ''}">${upcaseFirst(tagText.trim())}</span>`
   }
   html += `</div>`;
-  return createNode(html);
+  let node = createNode(html);
+  wireUpOnclickHandlers(node);
+  return node;
 }
 
 function createResourceNode(resource) {
@@ -362,7 +381,9 @@ function createStaticResourceNode(resource) {
     html += `<span class="tag${tag.isNegated ? ' negated' : ''}">${upcaseFirst(tagText.trim())}</span>`
   }
   html += `</div>`;
-  return createNode(html);
+  let node = createNode(html);
+  wireUpOnclickHandlers(node);
+  return node;
 }
 
 function createRelationshipNode(relationship) {
@@ -403,6 +424,7 @@ function createStaticRelationshipNode(relationship) {
     <div class="minibutton import" title="Add to intent">↩️</div>
   </div>`;
   let node = createNode(html);
+  wireUpOnclickHandlers(node);
   return node;
 }
 
@@ -582,7 +604,9 @@ function createStaticTriggerNode(trigger) {
       <div class="contents">${trigger.then[0].action}: ${trigger.then[0].params.join(', ')}</div>
     </div>
   </div>`;
-  return createNode(html);
+  let node = createNode(html);
+  wireUpOnclickHandlers(node);
+  return node;
 }
 
 function openTagEditor(thingNode) {
