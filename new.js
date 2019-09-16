@@ -626,7 +626,7 @@ function setCurrentGameRules(rules) {
     targetList.appendChild(uiBuilderFunction(thing));
   }
 }
-setCurrentGameRules(intent);
+setCurrentGameRules(gameRules);
 
 // add click handlers to new thing buttons in intent UI
 newEntityButton.onclick = function() {
