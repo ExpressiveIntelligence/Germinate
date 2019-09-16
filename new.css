@@ -142,6 +142,7 @@ section {
 }
 .new-button {
   background: transparent !important;
+  box-shadow: none !important;
   color: #ccc;
   cursor: pointer;
   line-height: 1;
@@ -206,7 +207,6 @@ section {
 }
 .trigger .lhs {
   background: #fdc5c5;
-  border-right: 1px solid #ccc;
   border-top-left-radius: .25rem;
   border-bottom-left-radius: .25rem;
 }
