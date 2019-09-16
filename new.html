@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <title>NextGemini</title>
   <link href="https://fonts.googleapis.com/css?family=Caveat&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Bad+Script|Caveat|Kavivanar|Long+Cang|Nothing+You+Could+Do|Reenie+Beanie&display=swap" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link href="https://fonts.googleapis.com/css?family=Bad+Script&display=swap" rel="stylesheet">
+  <!-- |Caveat|Kavivanar|Long+Cang|Nothing+You+Could+Do|Reenie+Beanie -->
   <link rel="stylesheet" type="text/css" href="new.css">
 </head>
 <body>
@@ -44,31 +44,39 @@
         </section>
         <div class="generate-games">Generate games »</div>
       </div>
-      <div class="thisgamerules">
-        <h2>Generated game rules</h2>
-        <section class="entities">
-          <h3>Entities</h3>
-          <div id="generatedEntitiesList" class="things-list"></div>
-        </section>
-        <section class="resources">
-          <h3>Resources</h3>
-          <div id="generatedResourcesList" class="things-list"></div>
-        </section>
-        <section class="relationships">
-          <h3>Relationships</h3>
-          <div id="generatedRelationshipsList"></div>
-        </section>
-        <section class="triggers">
-          <h3>Triggers</h3>
-          <div id="generatedTriggersList"></div>
-        </section>
-      </div>
-      <div class="thisgame">
-        <input class="gametitle" type="text" value="A Game about Depression">
-        <div class="game">GAME GOES HERE</div>
-        <div><button id="restart">Restart game</button></div>
-        <button class="back" id="previousGame">« Previous game</button>
-        <button class="continue" id="nextGame">Next game »</button>
+      <div class="game-navigator">
+        <div class="game-navigator-topbar">
+          <input class="gametitle" type="text" value="A Game about Depression">
+          <button class="back" id="previousGame">« Previous game</button>
+          <div class="gamecounter">1 / 6</div>
+          <button class="continue" id="nextGame">Next game »</button>
+        </div>
+        <div class="thisgamecontainer">
+          <div class="thisgame">
+            <h2>Play</h2>
+            <div class="game">GAME GOES HERE</div>
+            <div><button id="restart">Restart game</button></div>
+          </div>
+          <div class="thisgamerules">
+            <h2>Generated game rules</h2>
+            <section class="entities">
+              <h3>Entities</h3>
+              <div id="generatedEntitiesList" class="things-list"></div>
+            </section>
+            <section class="resources">
+              <h3>Resources</h3>
+              <div id="generatedResourcesList" class="things-list"></div>
+            </section>
+            <section class="relationships">
+              <h3>Relationships</h3>
+              <div id="generatedRelationshipsList"></div>
+            </section>
+            <section class="triggers">
+              <h3>Triggers</h3>
+              <div id="generatedTriggersList"></div>
+            </section>
+          </div>
+        </div>
       </div>
     </div>
     <div class="intent-navigator"></div>

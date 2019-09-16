@@ -5,12 +5,57 @@
   font-family: Helvetica;
   font-weight: 100;
 }
+body {
+  line-height: 1.5;
+}
+input[type="text"] {
+  text-align: center;
+  width: 100px;
+}
+button {
+  background: lightgrey;
+  border: none;
+  border-radius: .5rem;
+  font-size: 1rem;
+  padding: .5rem;
+  margin: .5rem .25rem;
+  cursor: pointer;
+  outline: none;
+}
+button:disabled{
+  background: lightgrey;
+  color: grey;
+  cursor: not-allowed;
+}
+.back {
+  background: #ddd;
+  border: none;
+  border-radius: .5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: .5rem;
+}
+.continue {
+  background: blue;
+  border: none;
+  border-radius: .5rem;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: .5rem;
+}
+#restart {
+  background: #ddd;
+  border: none;
+  border-radius: .5rem;
+  font-size: 1rem;
+  font-weight: normal;
+  padding: .5rem;
+  margin: .5rem;
+}
 .columns {
   display: flex;
   flex-flow: row wrap;
-}
-.columns > * {
-  padding: 1rem;
 }
 section {
   margin-bottom: 1rem;
@@ -18,14 +63,38 @@ section {
 .intent {
   background: cornsilk;
   width: 30%;
+  padding: 1rem 2rem;
+}
+.game-navigator {
+  background: white;
+  padding: 0;
+  padding-left: 0;
+  padding-right: 2rem;
+  width: 70%;
+}
+.game-navigator-topbar {
+  padding-top: 1rem;
+  text-align: center;
+}
+.gamecounter {
+  display: inline-block;
+}
+.back, .continue {
+  font-size: .8rem;
+}
+.thisgamecontainer {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 1rem;
 }
 .thisgamerules {
-  background: cornsilk;
-  width: 30%;
+  width: 40%;
 }
 .thisgame {
-  background: cornsilk;
-  width: 40%;
+  width: 60%;
+}
+.thisgame h2 {
+  margin-bottom: 1rem;
 }
 #toggleNegateMode {
   color: orangered;
@@ -106,8 +175,13 @@ section {
 .relationship.new-button, .trigger.new-button {
   font-size: 1.5rem;
 }
-input[type="text"] {
-  width: 100px;
+.relationship.new-button {
+  border-color: lightgreen;
+  color: lightgreen;
+}
+.trigger.new-button {
+  border-color: #fd8383;
+  color: #fd8383;
 }
 .relationship.negated input[type="text"] {
   width: 80px;
@@ -192,6 +266,9 @@ input.thing-name {
   font-weight: bold;
   padding: .5rem;
   text-align: center;
+}
+.tags {
+  line-height: 1;
 }
 .tag {
   background-color: mediumturquoise;
