@@ -130,20 +130,8 @@ function addThingToIntent(thing, type) {
 }
 
 let exampleEntities = [
-  {
-    name: "Friend",
-    icon: "💁",
-    tags: [
-      {family: 'playerAttitude', value: 'good'}
-    ]
-  },
-  {
-    name: "",
-    icon: "❓",
-    tags: [
-      {family: 'optional', value: 'optional'}
-    ]
-  }
+  {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]},
+  {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
 ];
 
 let exampleResources = [
@@ -165,16 +153,8 @@ let exampleResources = [
 ];
 
 let exampleRelationships = [
-  {
-    lhs: "Friend",
-    reltype: "collides with",
-    rhs: "Insecurity"
-  },
-  {
-    lhs: "Insecurity",
-    reltype: "produces",
-    rhs: "Depression"
-  }
+  {lhs: "Friend", reltype: "collides with", rhs: "Insecurity"},
+  {lhs: "Insecurity", reltype: "produces", rhs: "Depression"}
 ];
 
 let exampleTriggers = [
@@ -210,13 +190,7 @@ function addThingToGameRules(thing, type) {
 }
 
 let gameExampleEntities = [
-  {
-    name: "Friend",
-    icon: "💁",
-    tags: [
-      {family: 'playerAttitude', value: 'good'}
-    ]
-  }
+  {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]}
 ];
 
 let gameExampleResources = [
@@ -231,29 +205,14 @@ let gameExampleResources = [
 ];
 
 let gameExampleRelationships = [
-  {
-    lhs: "Friend",
-    reltype: "collides with",
-    rhs: "Insecurity"
-  },
-  {
-    lhs: "Insecurity",
-    reltype: "produces",
-    rhs: "Depression"
-  }
+  {lhs: "Friend", reltype: "collides with", rhs: "Insecurity"},
+  {lhs: "Insecurity", reltype: "produces", rhs: "Depression"}
 ];
 
 let gameExampleTriggers = [
   {
-    when: [
-      {
-        cond: 'Resource greater than value',
-        params: ['Depression', '5']
-      }
-    ],
-    then: [
-      {action: 'Spawn entity at', params: ['Friend', '0,0']}
-    ]
+    when: [{cond: 'Resource greater than value', params: ['Depression', '5']}],
+    then: [{action: 'Spawn entity at', params: ['Friend', '0,0']}]
   }
 ];
 
@@ -678,4 +637,85 @@ toggleNegateMode.onclick = function() {
   } else {
     toggleNegateMode.classList.add('inactive');
   }
+}
+
+/// game pool navigation
+
+let gamePools = [
+  [{file: 'games/depression-A-game_1.lp', rules: gameRules},
+   {file: 'games/depression-A-game_2.lp', rules: gameRules},
+   {file: 'games/depression-A-game_3.lp', rules: gameRules},
+   {file: 'games/depression-A-game_4.lp', rules: gameRules},
+   {file: 'games/depression-A-game_5.lp', rules: gameRules}],
+
+  [{file: 'games/depression-B-game_1.lp', rules: gameRules},
+   {file: 'games/depression-B-game_2.lp', rules: gameRules}],
+
+  [{file: 'games/depression-C-game_1.lp', rules: gameRules}],
+
+  [{file: 'games/depression-D-game_1.lp', rules: gameRules},
+   {file: 'games/depression-D-game_2.lp', rules: gameRules},
+   {file: 'games/depression-D-game_3.lp', rules: gameRules},
+   {file: 'games/depression-D-game_4.lp', rules: gameRules},
+   {file: 'games/depression-D-game_5.lp', rules: gameRules}],
+
+  [{file: 'games/depression-E-game_1.lp', rules: gameRules},
+   {file: 'games/depression-E-game_2.lp', rules: gameRules},
+   {file: 'games/depression-E-game_3.lp', rules: gameRules},
+   {file: 'games/depression-E-game_4.lp', rules: gameRules},
+   {file: 'games/depression-E-game_5.lp', rules: gameRules}]
+];
+
+let currentPoolIndex = 0;
+let currentGameIndex = 0;
+
+function updateCurrentGame() {
+  let currentPool = gamePools[currentPoolIndex];
+  let {file, rules} = currentPool[currentGameIndex];
+  gameCounter.innerText = `${currentGameIndex + 1} / ${currentPool.length}`;
+
+  // load the actual game
+  let xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      // Destroy the current game
+      if ( game != "undefined") {
+        game.destroy();
+      }
+      loadGame(this.responseText);
+    }
+  };
+  console.log("loading game file:", file)
+  xhttp.open("GET", file, true);
+  xhttp.send();
+
+  setCurrentGameRules(rules);
+
+  if (currentGameIndex <= 0) {
+    previousGame.disabled = true;
+  } else {
+    previousGame.disabled = false;
+  }
+
+  if (currentGameIndex >= currentPool.length - 1) {
+    nextGame.disabled = true;
+  } else {
+    nextGame.disabled = false;
+  }
+}
+
+generateGames.onclick = function() {
+  currentPoolIndex += 1;
+  currentGameIndex = 0;
+  updateCurrentGame();
+}
+
+previousGame.onclick = function() {
+  currentGameIndex -= 1;
+  updateCurrentGame();
+}
+
+nextGame.onclick = function() {
+  currentGameIndex += 1;
+  updateCurrentGame();
 }

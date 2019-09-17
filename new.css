@@ -339,11 +339,12 @@ input.thing-name {
   text-align: center;
   width: 75% !important;
 }
-.game {
-  width: 500px;
-  height: 300px;
-  margin: 0 auto;
+#game {
   background: #ccc;
+  height: 400px;
+  margin: 0 auto;
+  padding-top: 1rem;
+  width: 500px;
 }
 .continue {
   background: rgb(0,150,255);
