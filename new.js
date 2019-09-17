@@ -80,6 +80,8 @@ let tagFamilies = {
   }
 };
 
+let relevantEmoji = ['❓', '💁', '😢', '😞', '❤️', '🔥'];
+
 /// thing ID generation
 
 let lastID = -1;
@@ -286,6 +288,10 @@ function createEntityNode(entity) {
   html += `</div>`;
   let node = createNode(html);
   wireUpOnclickHandlers(node);
+  let emojiNode = node.querySelector('.entity-icon');
+  emojiNode.onclick = function() {
+    openEmojiPicker(node);
+  }
   return node;
 }
 
@@ -377,6 +383,29 @@ function createStaticRelationshipNode(relationship) {
   </div>`;
   let node = createNode(html);
   wireUpOnclickHandlers(node);
+  return node;
+}
+
+function createEmojiPickerNode(thingNode) {
+  let html = `<div class="emoji-picker">
+    <div class="close-emoji-picker">X</div>`;
+  for (let emoji of relevantEmoji) {
+    html += `<span class="emoji">${emoji}</span>`;
+  }
+  html += `</div>`;
+  let node = createNode(html);
+  let closeEmojiPicker = node.querySelector('.close-emoji-picker');
+  closeEmojiPicker.onclick = function() {
+    node.remove();
+  }
+  let thingID = thingNode.id;
+  let thingEmojiNode =  thingNode.querySelector('.entity-icon');
+  for (let emojiSpan of node.querySelectorAll('.emoji')) {
+    emojiSpan.onclick = function() {
+      thingEmojiNode.innerText = emojiSpan.innerText;
+      intent[thingID].icon = emojiSpan.innerText;
+    }
+  }
   return node;
 }
 
@@ -545,7 +574,21 @@ function createStaticTriggerNode(trigger) {
   return node;
 }
 
+function openEmojiPicker(thingNode) {
+  // close other modals if any exist
+  let existingEmojiPickerNode = document.querySelector('.emoji-picker');
+  if (existingEmojiPickerNode) existingEmojiPickerNode.remove();
+  let existingTagEditorNode = document.querySelector('.tag-editor');
+  if (existingTagEditorNode) existingTagEditorNode.remove();
+
+  let emojiPickerNode = createEmojiPickerNode(thingNode);
+  thingNode.appendChild(emojiPickerNode);
+}
+
 function openTagEditor(thingNode) {
+  // close other modals if any exist
+  let existingEmojiPickerNode = document.querySelector('.emoji-picker');
+  if (existingEmojiPickerNode) existingEmojiPickerNode.remove();
   let existingTagEditorNode = document.querySelector('.tag-editor');
   if (existingTagEditorNode) existingTagEditorNode.remove();
 
@@ -719,3 +762,5 @@ nextGame.onclick = function() {
   currentGameIndex += 1;
   updateCurrentGame();
 }
+
+updateCurrentGame();

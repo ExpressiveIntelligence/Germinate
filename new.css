@@ -233,7 +233,11 @@ input.thing-name {
   width: 80%;
 }
 .entity-icon {
+  cursor: pointer;
   font-size: 2rem;
+}
+.static .entity-icon {
+  cursor: default;
 }
 .minibutton {
   background: orange;
@@ -294,7 +298,7 @@ input.thing-name {
   font-size: .8rem;
   text-decoration: underline;
 }
-.tag-editor {
+.tag-editor, .emoji-picker {
   background: #eef;
   border: 2px solid cornflowerblue;
   border-radius: 1rem;
@@ -318,13 +322,17 @@ input.thing-name {
 .tag-family .tag.active {
   background: orange;
 }
-.close-tag-editor {
+.close-tag-editor, .close-emoji-picker {
   cursor: pointer;
   position: absolute;
   top: .5rem;
   right: .5rem;
   color: red;
   font-weight: bold;
+}
+.emoji {
+  cursor: pointer;
+  font-size: 2rem;
 }
 .thisgame {
   text-align: center;
