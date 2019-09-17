@@ -96,11 +96,13 @@ section {
 .thisgame h2 {
   margin-bottom: 1rem;
 }
-#toggleNegateMode {
-  color: orangered;
-  cursor: pointer;
+.buttonlinks {
   font-size: .8rem;
   text-align: center;
+}
+.buttonlinks span {
+  color: orangered;
+  cursor: pointer;
   text-decoration: underline;
 }
 .things-list {
@@ -356,4 +358,36 @@ input.thing-name {
 }
 .continue {
   background: rgb(0,150,255);
+}
+.modal {
+  background-color: #000; /*solid black fallback*/
+  background-color: rgba(0,0,0,0.85);
+  display: none;
+  height: 100%;
+  left: 0;
+  overflow-y: scroll;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 2000;
+}
+.modal.active {
+  display: block;
+}
+.modal-contents {
+  background-color: white;
+  margin: 0 auto;
+  max-width: 560px;
+  padding: 2rem;
+  position: relative;
+  text-align: center;
+  top: 25%;
+  width: 70%;
+}
+.modal-contents h2 {
+  font-weight: inherit;
+}
+.modal-contents input[type="text"] {
+  font-size: 1rem;
+  width: 150px;
 }

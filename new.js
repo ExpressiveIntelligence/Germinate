@@ -682,6 +682,27 @@ toggleNegateMode.onclick = function() {
   }
 }
 
+/// theme picker stuff
+
+let currentTheme = themePickerText.value;
+
+changeTheme.onclick = function() {
+  themePicker.classList.add('active');
+}
+
+for (let themeButton of themePicker.querySelectorAll('.pick-theme')) {
+  themeButton.onclick = function() {
+    currentTheme = themeButton.innerText;
+    themePickerText.value = themeButton.innerText;
+    themePicker.classList.remove('active');
+  }
+}
+
+themePickerContinue.onclick = function() {
+  currentTheme = themePickerText.value;
+  themePicker.classList.remove('active');
+}
+
 /// game pool navigation
 
 let gamePools = [
