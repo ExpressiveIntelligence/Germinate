@@ -7,6 +7,10 @@ function upcaseFirst(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+function randNth(items){
+  return items[Math.floor(Math.random()*items.length)];
+}
+
 function createNode(html) {
   let div = document.createElement('div');
   div.innerHTML = html;
@@ -14,6 +18,20 @@ function createNode(html) {
 }
 
 /// static data structure setup
+
+let themeFamilies = {
+  depression: {
+    entityNames: ['Friend', 'Family', 'Insecurity', 'Good thought', 'Bad thought', 'Brain'],
+    resourceNames: ['Confidence', 'Happiness', 'Depression', 'Friends', 'Insecurity', 'Brain', 'Anxiety'],
+    icons: ['💁', '😢', '😞', '❤️', '🔥', '💧', '😭', '😿', '😬', '🧠', '✨']
+  }
+};
+
+let defaultThemeFamily = {
+  entityNames: ['Person', 'Car', 'Tree', 'Building', 'Fire', 'Leopard', 'Computer', 'Art'],
+  resourceNames: ['Confusion', 'Understanding', 'Satisfaction', 'Fun', 'Enmity', 'Delight', 'Failure'],
+  icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄']
+};
 
 let triggerConditions = {
   tick: {desc: 'Every frame', params: []},
@@ -79,8 +97,6 @@ let tagFamilies = {
     appliesTo: ['resource']
   }
 };
-
-let relevantEmoji = ['❓', '💁', '😢', '😞', '❤️', '🔥'];
 
 /// thing ID generation
 
@@ -244,6 +260,32 @@ function wireUpOnclickHandlers(thingNode) {
       thingNode.remove();
     }
   }
+  for (let randomizeButton of thingNode.querySelectorAll('.randomize')) {
+    randomizeButton.onclick = function() {
+      let thing = intent[thingNode.id];
+      let thingType = thing.type;
+      let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
+      if (thingType === 'entity') {
+        let newName = randNth(themeFamily.entityNames);
+        thing.name = newName;
+        thingNode.querySelector('.thing-name').value = newName;
+
+        let newIcon = randNth(themeFamily.icons);
+        thing.icon = newIcon;
+        thingNode.querySelector('.entity-icon').innerText = newIcon;
+
+        // TODO randomize tags
+      } else if (thingType === 'resource') {
+        let newName = randNth(themeFamily.resourceNames);
+        thing.name = newName;
+        thingNode.querySelector('.thing-name').value = newName;
+
+        // TODO randomize tags
+      } else {
+        // TODO do something else appropriate!
+      }
+    }
+  }
   for (let tagNode of thingNode.querySelectorAll('.tag')) {
     tagNode.onclick = function() {
       if (negateModeActive) {
@@ -391,8 +433,10 @@ function createStaticRelationshipNode(relationship) {
 
 function createEmojiPickerNode(thingNode) {
   let html = `<div class="emoji-picker">
-    <div class="close-emoji-picker">X</div>`;
-  for (let emoji of relevantEmoji) {
+    <div class="close-emoji-picker">X</div>
+    <span class="emoji">❓</span>`;
+  let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
+  for (let emoji of themeFamily.icons) {
     html += `<span class="emoji">${emoji}</span>`;
   }
   html += `</div>`;
