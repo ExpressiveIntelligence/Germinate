@@ -253,6 +253,9 @@ function wireUpOnclickHandlers(thingNode) {
       }
     }
   }
+}
+
+function wireUpStaticOnclickHandlers(thingNode) {
   for (let importButton of thingNode.querySelectorAll('.import')) {
     importButton.onclick = function() {
       let thingID = thingNode.id.replace('static_', '');
@@ -307,7 +310,7 @@ function createStaticEntityNode(entity) {
   }
   html += `</div>`;
   let node = createNode(html);
-  wireUpOnclickHandlers(node);
+  wireUpStaticOnclickHandlers(node);
   return node;
 }
 
@@ -340,7 +343,7 @@ function createStaticResourceNode(resource) {
   }
   html += `</div>`;
   let node = createNode(html);
-  wireUpOnclickHandlers(node);
+  wireUpStaticOnclickHandlers(node);
   return node;
 }
 
@@ -382,7 +385,7 @@ function createStaticRelationshipNode(relationship) {
     <div class="minibutton import" title="Add to intent">↩️</div>
   </div>`;
   let node = createNode(html);
-  wireUpOnclickHandlers(node);
+  wireUpStaticOnclickHandlers(node);
   return node;
 }
 
@@ -570,7 +573,7 @@ function createStaticTriggerNode(trigger) {
     </div>
   </div>`;
   let node = createNode(html);
-  wireUpOnclickHandlers(node);
+  wireUpStaticOnclickHandlers(node);
   return node;
 }
 

@@ -308,6 +308,9 @@ input.thing-name {
   line-height: 1;
   max-width: 90%;
 }
+.static .tag {
+  cursor: default;
+}
 .tag.negated {
   background: orangered;
 }
