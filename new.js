@@ -249,6 +249,28 @@ for (let trigger of gameExampleTriggers) {
 
 /// other UI stuff
 
+function addTagToThingNode(thingNode, tag) {
+  // get family info about tag we're trying to add
+  let tagFamily = tagFamilies[tag.family];
+
+  // check if there's a current tag from same tag family. if so, remove
+  let thingTagNodes = [...thingNode.querySelectorAll('.tag')];
+  let tagNodeFromSameFamily = thingTagNodes.find(tn => tn.innerText.startsWith(tagFamily.text));
+  if (tagNodeFromSameFamily) tagNodeFromSameFamily.remove();
+
+  // now actually add the new tag
+  let tagText = `${tagFamily.text} ${tag.value}`;
+  let newThingTagNode = createNode(`<span class="tag">${upcaseFirst(tagText.trim())}</span>`);
+  thingNode.querySelector('.tags').appendChild(newThingTagNode);
+  newThingTagNode.onclick = function() {
+    if (negateModeActive) {
+      negateTag(newThingTagNode);
+    } else {
+      newThingTagNode.innerText = cycleTag(newThingTagNode.innerText);
+    }
+  }
+}
+
 function wireUpOnclickHandlers(thingNode) {
   for (let editTagsLink of thingNode.querySelectorAll('.edit-tags')) {
     editTagsLink.onclick = function() {
@@ -266,23 +288,39 @@ function wireUpOnclickHandlers(thingNode) {
       let thingType = thing.type;
       let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
       if (thingType === 'entity') {
+        // randomize name
         let newName = randNth(themeFamily.entityNames);
         thing.name = newName;
         thingNode.querySelector('.thing-name').value = newName;
-
+        // randomize icon
         let newIcon = randNth(themeFamily.icons);
         thing.icon = newIcon;
         thingNode.querySelector('.entity-icon').innerText = newIcon;
-
-        // TODO randomize tags
       } else if (thingType === 'resource') {
+        // randomize name
         let newName = randNth(themeFamily.resourceNames);
         thing.name = newName;
         thingNode.querySelector('.thing-name').value = newName;
-
-        // TODO randomize tags
       } else {
         // TODO do something else appropriate!
+      }
+
+      if (thingType === 'entity' || thingType === 'resource') {
+        // randomize tags
+        // first, clear current tags
+        let thingTagsNode = thingNode.querySelector('.tags');
+        thingTagsNode.innerHTML = '';
+        // then pick and add new tags
+        let validTagFamilies = Object.values(tagFamilies).filter(tf => tf.appliesTo.indexOf(thingType) > -1);
+        validTagFamilies = validTagFamilies.filter(tf => tf.name !== 'optional');
+        // one for each tag family (other than 'optional')
+        for (let tagFamily of validTagFamilies) {
+          let value = randNth(tagFamily.tags);
+          addTagToThingNode(thingNode, {value, family: tagFamily.name});
+        }
+        if (Math.random() > 0.5) {
+          addTagToThingNode(thingNode, {value: 'optional', family: 'optional'});
+        }
       }
     }
   }
