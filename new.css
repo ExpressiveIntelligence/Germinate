@@ -65,6 +65,26 @@ section {
   width: 30%;
   padding: 1rem 2rem;
 }
+/* toggle between viewing code and not viewing code */
+section.code {
+  display: none;
+}
+.viewing-code section.code {
+  display: block;
+}
+.viewing-code section {
+  display: none;
+}
+.viewing-code textarea {
+  background: #eee;
+  border: none;
+  font-family: monospace;
+  font-size: 1rem;
+  height: 1000px;
+  resize: none;
+  width: 100%;
+}
+/* game navigator styles */
 .game-navigator {
   background: white;
   padding: 0;

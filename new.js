@@ -703,6 +703,28 @@ themePickerContinue.onclick = function() {
   themePicker.classList.remove('active');
 }
 
+/// code viewing stuff
+
+viewCodeIntent.onclick = function() {
+  if (intentNode.classList.contains('viewing-code')) {
+    intentNode.classList.remove('viewing-code');
+    viewCodeIntent.innerText = 'View code';
+  } else {
+    intentNode.classList.add('viewing-code');
+    viewCodeIntent.innerText = 'View cards';
+  }
+}
+
+viewCodeGameRules.onclick = function() {
+  if (gameRulesNode.classList.contains('viewing-code')) {
+    gameRulesNode.classList.remove('viewing-code');
+    viewCodeGameRules.innerText = 'View code';
+  } else {
+    gameRulesNode.classList.add('viewing-code');
+    viewCodeGameRules.innerText = 'View cards';
+  }
+}
+
 /// game pool navigation
 
 let gamePools = [
@@ -742,6 +764,10 @@ function updateCurrentGame() {
   let xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
+      // we have to run this first, so that the errors on first game load in the rest of the function
+      // don't prevent the rules code from being loaded. this kind of sucks but don't mess with it for now.
+      gameRulesCodeNode.innerHTML = this.responseText.split('==========')[0];
+
       // Destroy the current game
       if ( game != "undefined") {
         game.destroy();
