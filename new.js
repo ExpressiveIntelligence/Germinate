@@ -249,6 +249,57 @@ for (let trigger of gameExampleTriggers) {
 
 /// other UI stuff
 
+function wireUpTagOnclick(thingTagNode) {
+  thingTagNode.onclick = function() {
+    if (negateModeActive) {
+      negateTag(thingTagNode);
+    } else {
+      thingTagNode.innerText = cycleTag(thingTagNode.innerText);
+    }
+  };
+}
+
+function randomizeThing(thingNode) {
+  let thing = intent[thingNode.id];
+  let thingType = thing.type;
+  let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
+  if (thingType === 'entity') {
+    // randomize name
+    let newName = randNth(themeFamily.entityNames);
+    thing.name = newName;
+    thingNode.querySelector('.thing-name').value = newName;
+    // randomize icon
+    let newIcon = randNth(themeFamily.icons);
+    thing.icon = newIcon;
+    thingNode.querySelector('.entity-icon').innerText = newIcon;
+  } else if (thingType === 'resource') {
+    // randomize name
+    let newName = randNth(themeFamily.resourceNames);
+    thing.name = newName;
+    thingNode.querySelector('.thing-name').value = newName;
+  } else {
+    // TODO do something else appropriate!
+  }
+
+  // if thing is an entity or resource, randomize tags
+  if (thingType === 'entity' || thingType === 'resource') {
+    // clear current tags
+    let thingTagsNode = thingNode.querySelector('.tags');
+    thingTagsNode.innerHTML = '';
+    // pick and add new tags, one for each valid tag family (other than 'optional')
+    let validTagFamilies = Object.values(tagFamilies).filter(tf => tf.appliesTo.indexOf(thingType) > -1);
+    validTagFamilies = validTagFamilies.filter(tf => tf.name !== 'optional');
+    for (let tagFamily of validTagFamilies) {
+      let value = randNth(tagFamily.tags);
+      addTagToThingNode(thingNode, {value, family: tagFamily.name});
+    }
+    // randomly either add or don't add the 'optional' tag
+    if (Math.random() > 0.5) {
+      addTagToThingNode(thingNode, {value: 'optional', family: 'optional'});
+    }
+  }
+}
+
 function addTagToThingNode(thingNode, tag) {
   // get family info about tag we're trying to add
   let tagFamily = tagFamilies[tag.family];
@@ -262,13 +313,7 @@ function addTagToThingNode(thingNode, tag) {
   let tagText = `${tagFamily.text} ${tag.value}`;
   let newThingTagNode = createNode(`<span class="tag">${upcaseFirst(tagText.trim())}</span>`);
   thingNode.querySelector('.tags').appendChild(newThingTagNode);
-  newThingTagNode.onclick = function() {
-    if (negateModeActive) {
-      negateTag(newThingTagNode);
-    } else {
-      newThingTagNode.innerText = cycleTag(newThingTagNode.innerText);
-    }
-  }
+  wireUpTagOnclick(newThingTagNode);
 }
 
 function wireUpOnclickHandlers(thingNode) {
@@ -279,59 +324,17 @@ function wireUpOnclickHandlers(thingNode) {
   }
   for (let deleteButton of thingNode.querySelectorAll('.delete')) {
     deleteButton.onclick = function() {
+      delete intent[thingNode.id];
       thingNode.remove();
     }
   }
   for (let randomizeButton of thingNode.querySelectorAll('.randomize')) {
     randomizeButton.onclick = function() {
-      let thing = intent[thingNode.id];
-      let thingType = thing.type;
-      let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
-      if (thingType === 'entity') {
-        // randomize name
-        let newName = randNth(themeFamily.entityNames);
-        thing.name = newName;
-        thingNode.querySelector('.thing-name').value = newName;
-        // randomize icon
-        let newIcon = randNth(themeFamily.icons);
-        thing.icon = newIcon;
-        thingNode.querySelector('.entity-icon').innerText = newIcon;
-      } else if (thingType === 'resource') {
-        // randomize name
-        let newName = randNth(themeFamily.resourceNames);
-        thing.name = newName;
-        thingNode.querySelector('.thing-name').value = newName;
-      } else {
-        // TODO do something else appropriate!
-      }
-
-      if (thingType === 'entity' || thingType === 'resource') {
-        // randomize tags
-        // first, clear current tags
-        let thingTagsNode = thingNode.querySelector('.tags');
-        thingTagsNode.innerHTML = '';
-        // then pick and add new tags
-        let validTagFamilies = Object.values(tagFamilies).filter(tf => tf.appliesTo.indexOf(thingType) > -1);
-        validTagFamilies = validTagFamilies.filter(tf => tf.name !== 'optional');
-        // one for each tag family (other than 'optional')
-        for (let tagFamily of validTagFamilies) {
-          let value = randNth(tagFamily.tags);
-          addTagToThingNode(thingNode, {value, family: tagFamily.name});
-        }
-        if (Math.random() > 0.5) {
-          addTagToThingNode(thingNode, {value: 'optional', family: 'optional'});
-        }
-      }
+      randomizeThing(thingNode);
     }
   }
   for (let tagNode of thingNode.querySelectorAll('.tag')) {
-    tagNode.onclick = function() {
-      if (negateModeActive) {
-        negateTag(tagNode);
-      } else {
-        tagNode.innerText = cycleTag(tagNode.innerText);
-      }
-    }
+    wireUpTagOnclick(tagNode);
   }
 }
 
@@ -539,14 +542,7 @@ function createTagEditorNode(thingType, thingNode) {
         let tagText = `${family.text} ${tagNode.innerText}`;
         let newThingTagNode = createNode(`<span class="tag">${upcaseFirst(tagText.trim())}</span>`);
         thingNode.querySelector('.tags').appendChild(newThingTagNode);
-        // copied from wireUpOnclickHandlers - make the newThingTagNode behave correctly on click
-        newThingTagNode.onclick = function() {
-          if (negateModeActive) {
-            negateTag(newThingTagNode);
-          } else {
-            newThingTagNode.innerText = cycleTag(newThingTagNode.innerText);
-          }
-        }
+        wireUpTagOnclick(newThingTagNode);
       }
     }
   }
