@@ -30,7 +30,7 @@ let themeFamilies = {
 let defaultThemeFamily = {
   entityNames: ['Person', 'Car', 'Tree', 'Building', 'Fire', 'Leopard', 'Computer', 'Art'],
   resourceNames: ['Confusion', 'Understanding', 'Satisfaction', 'Fun', 'Enmity', 'Delight', 'Failure'],
-  icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄']
+  icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄', '🎂', '🍰', '🎈', '🎉', '🎁']
 };
 
 let relationshipTypes = ['is related to', 'consumes', 'produces', 'defeats', 'avoids', 'collides with'];
