@@ -11,6 +11,12 @@ function randNth(items){
   return items[Math.floor(Math.random()*items.length)];
 }
 
+function randInt(min, max) {
+  min = Math.ceil(min); // inclusive
+  max = Math.floor(max); // exclusive
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
 function createNode(html) {
   let div = document.createElement('div');
   div.innerHTML = html;
@@ -39,7 +45,7 @@ let triggerConditions = {
   tick: {desc: 'Every frame', params: []},
   rvalGte: {desc: 'Resource greater than value', params: ['resource', 'value']},
   rvalLte: {desc: 'Resource less than value', params: ['resource', 'value']},
-  collide: {desc: 'Entity collides with entity', params: ['first entity', 'second entity']},
+  collide: {desc: 'Entity collides with entity', params: ['entity #1', 'entity #2']},
   entClick: {desc: 'Entity is clicked', params: ['entity']},
   mouseClick: {desc: 'Mouse is clicked', params: []},
   mouseHold: {desc: 'Mouse is held', params: []},
@@ -57,7 +63,7 @@ let triggerActions = {
   moveEntToward: {desc: 'Move entity toward', params: ['entity', 'target']},
   moveEntAway: {desc: 'Move entity away from', params: ['entity', 'target']},
   moveEntDir: {desc: 'Move entity in direction', params: ['entity', 'direction']},
-  restitution: {desc: 'Prevent entity overlap', params: ['first entity', 'second entity']},
+  restitution: {desc: 'Prevent entity overlap', params: ['entity #1', 'entity #2']},
   rotEntBy: {desc: 'Rotate entity by angle', params: ['entity', 'angle']},
   entLookAt: {desc: 'Make entity look at', params: ['entity', 'target']},
   setEntSprite: {desc: 'Set entity sprite', params: ['entity', 'sprite']},
@@ -268,6 +274,47 @@ function randomEntityOrResourceName(intent) {
   return randNth(names);
 }
 
+function randomizeTriggerParam(paramName) {
+  paramName = paramName.toLowerCase();
+  if (paramName.includes('entity') || paramName === 'target') {
+    let things = Object.values(intent);
+    let entities = things.filter(thing => thing.type === 'entity');
+    return randNth(entities.map(e => e.name));
+  } else if (paramName.includes('resource')) {
+    let things = Object.values(intent);
+    let resources = things.filter(thing => thing.type === 'resource');
+    return randNth(resources.map(r => r.name));
+  } else if (paramName === 'key') {
+    return randNth([randNth(['Up', 'Down', 'Left', 'Right', 'Space', 'Shift', 'Enter']),
+                    randNth('ABDCEFGHIJKLMNOPQRSTUVWXYZ')]);
+  } else if (paramName === 'sprite') {
+    return randNth((themeFamilies[currentTheme] || defaultThemeFamily).icons);
+  } else if (paramName === 'value') {
+    return randInt(0, 11);
+  } else if (paramName === 'amount') {
+    return randInt(1, 3);
+  } else if (paramName === 'angle') {
+    return randInt(0, 360);
+  } else if (paramName === 'direction') {
+    return randNth(['forward', 'backward', 'left', 'right']);
+  } else if (paramName === 'color') {
+    return randNth(['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'white', 'black']);
+  } else if (paramName === 'size') {
+    return randNth(['tiny', 'small', 'medium', 'large', 'huge']);
+  } else if (paramName === 'message') {
+    return randNth([
+      'You win!', 'You lose!', 'Victory!', 'Defeat!',
+      'Hopeless failure!', 'Ultimate supremacy achieved!',
+      'Wasted', 'YOU DIED', 'You died!', 'Destruction!', 'Failure!',
+      'Success!', 'Success achieved!', 'Incredible!', 'Impossible!', 'You did it!'
+    ]);
+  } else if (paramName === 'timer') {
+    return 'default timer';
+  } else {
+    return '';
+  }
+}
+
 function randomizeThing(thingNode) {
   let thing = intent[thingNode.id];
   let thingType = thing.type;
@@ -290,9 +337,15 @@ function randomizeThing(thingNode) {
     thing.lhs = randomEntityOrResourceName(intent);
     thing.reltype = randNth(relationshipTypes);
     thing.rhs = randomEntityOrResourceName(intent);
+    // NOTE: replaceWith doesn't work in IE, maybe switch to replaceChild instead?
     thingNode.replaceWith(createRelationshipNode(thing));
   } else if (thingType === 'trigger') {
-    // TODO do something else appropriate!
+    let newCond = randNth(Object.values(triggerConditions));
+    let newAction = randNth(Object.values(triggerActions));
+    thing.when = [{cond: newCond.desc, params: newCond.params.map(randomizeTriggerParam)}];
+    thing.then = [{action: newAction.desc, params: newAction.params.map(randomizeTriggerParam)}];
+    // NOTE: replaceWith doesn't work in IE, maybe switch to replaceChild instead?
+    thingNode.replaceWith(createTriggerNode(thing));
   }
 
   // if thing is an entity or resource, randomize tags
