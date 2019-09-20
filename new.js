@@ -33,6 +33,8 @@ let defaultThemeFamily = {
   icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄']
 };
 
+let relationshipTypes = ['is related to', 'consumes', 'produces', 'defeats', 'avoids', 'collides with'];
+
 let triggerConditions = {
   tick: {desc: 'Every frame', params: []},
   rvalGte: {desc: 'Resource greater than value', params: ['resource', 'value']},
@@ -259,6 +261,13 @@ function wireUpTagOnclick(thingTagNode) {
   };
 }
 
+function randomEntityOrResourceName(intent) {
+  let things = Object.values(intent);
+  let entitiesAndResources = things.filter(thing => thing.type === 'entity' || thing.type === 'resource');
+  let names = entitiesAndResources.map(thing => thing.name);
+  return randNth(names);
+}
+
 function randomizeThing(thingNode) {
   let thing = intent[thingNode.id];
   let thingType = thing.type;
@@ -277,7 +286,12 @@ function randomizeThing(thingNode) {
     let newName = randNth(themeFamily.resourceNames);
     thing.name = newName;
     thingNode.querySelector('.thing-name').value = newName;
-  } else {
+  } else if (thingType === 'relationship') {
+    thing.lhs = randomEntityOrResourceName(intent);
+    thing.reltype = randNth(relationshipTypes);
+    thing.rhs = randomEntityOrResourceName(intent);
+    thingNode.replaceWith(createRelationshipNode(thing));
+  } else if (thingType === 'trigger') {
     // TODO do something else appropriate!
   }
 
@@ -431,18 +445,15 @@ function createStaticResourceNode(resource) {
 }
 
 function createRelationshipNode(relationship) {
+  let optionsHtml = '';
+  for (let reltype of relationshipTypes) {
+    optionsHtml += `<option value=""${relationship.reltype === reltype ? ' selected' : ''}>${reltype}</option>`;
+  }
   let html = `<div class="relationship" id="${relationship.id}">
     <div class="minibutton randomize" title="Randomize this relationship">🎲</div>
     <span class="not">NOT </span>
     <input type="text" value="${relationship.lhs}" placeholder="Something">
-    <select>
-      <option value=""${relationship.reltype === 'is related to' ? ' selected' : ''}>is related to</option>
-      <option value=""${relationship.reltype === 'consumes' ? ' selected' : ''}>consumes</option>
-      <option value=""${relationship.reltype === 'produces' ? ' selected' : ''}>produces</option>
-      <option value=""${relationship.reltype === 'defeats' ? ' selected' : ''}>defeats</option>
-      <option value=""${relationship.reltype === 'avoids' ? ' selected' : ''}>avoids</option>
-      <option value=""${relationship.reltype === 'collides with' ? ' selected' : ''}>collides with</option>
-    </select>
+    <select>${optionsHtml}</select>
     <input type="text" value="${relationship.rhs}" placeholder="something">
     <div class="minibutton delete" title="Delete this relationship">🗑️</div>
   </div>`;
