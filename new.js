@@ -25,7 +25,7 @@ function createNode(html) {
 
 /// static data structure setup
 
-let themeFamilies = {
+let themes = {
   depression: {
     entityNames: ['Friend', 'Family', 'Insecurity', 'Good thought', 'Bad thought', 'Brain'],
     resourceNames: ['Confidence', 'Happiness', 'Depression', 'Friends', 'Insecurity', 'Brain', 'Anxiety'],
@@ -33,7 +33,7 @@ let themeFamilies = {
   }
 };
 
-let defaultThemeFamily = {
+let defaultTheme = {
   entityNames: ['Person', 'Car', 'Tree', 'Building', 'Fire', 'Leopard', 'Computer', 'Art'],
   resourceNames: ['Confusion', 'Understanding', 'Satisfaction', 'Fun', 'Enmity', 'Delight', 'Failure'],
   icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄', '🎂', '🍰', '🎈', '🎉', '🎁']
@@ -320,7 +320,7 @@ function randomizeTriggerParam(paramName) {
     return randNth([randNth(['Up', 'Down', 'Left', 'Right', 'Space', 'Shift', 'Enter']),
                     randNth('ABDCEFGHIJKLMNOPQRSTUVWXYZ')]);
   } else if (paramName === 'sprite') {
-    return randNth((themeFamilies[currentTheme] || defaultThemeFamily).icons);
+    return randNth(getCurrentTheme().icons);
   } else if (paramName === 'value') {
     return randInt(0, 11);
   } else if (paramName === 'amount') {
@@ -350,19 +350,19 @@ function randomizeTriggerParam(paramName) {
 function randomizeThing(thingNode) {
   let thing = intent[thingNode.id];
   let thingType = thing.type;
-  let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
+  let theme = getCurrentTheme();
   if (thingType === 'entity') {
     // randomize name
-    let newName = randNth(themeFamily.entityNames);
+    let newName = randNth(theme.entityNames);
     thing.name = newName;
     thingNode.querySelector('.thing-name').value = newName;
     // randomize icon
-    let newIcon = randNth(themeFamily.icons);
+    let newIcon = randNth(theme.icons);
     thing.icon = newIcon;
     thingNode.querySelector('.entity-icon').innerText = newIcon;
   } else if (thingType === 'resource') {
     // randomize name
-    let newName = randNth(themeFamily.resourceNames);
+    let newName = randNth(theme.resourceNames);
     thing.name = newName;
     thingNode.querySelector('.thing-name').value = newName;
   } else if (thingType === 'relationship') {
@@ -548,8 +548,8 @@ function createEmojiPickerNode(thingNode) {
   let html = `<div class="emoji-picker">
     <div class="close-emoji-picker">X</div>
     <span class="emoji">❓</span>`;
-  let themeFamily = themeFamilies[currentTheme] || defaultThemeFamily;
-  for (let emoji of themeFamily.icons) {
+  let theme = getCurrentTheme();
+  for (let emoji of theme.icons) {
     html += `<span class="emoji">${emoji}</span>`;
   }
   html += `</div>`;
@@ -823,7 +823,11 @@ toggleNegateMode.onclick = function() {
 
 /// theme picker stuff
 
-let currentTheme = themePickerText.value;
+function getCurrentTheme() {
+  return themes[currentThemeName] || defaultTheme;
+}
+
+let currentThemeName = themePickerText.value;
 
 changeTheme.onclick = function() {
   themePicker.classList.add('active');
@@ -831,14 +835,14 @@ changeTheme.onclick = function() {
 
 for (let themeButton of themePicker.querySelectorAll('.pick-theme')) {
   themeButton.onclick = function() {
-    currentTheme = themeButton.innerText;
+    currentThemeName = themeButton.innerText;
     themePickerText.value = themeButton.innerText;
     themePicker.classList.remove('active');
   }
 }
 
 themePickerContinue.onclick = function() {
-  currentTheme = themePickerText.value;
+  currentThemeName = themePickerText.value;
   themePicker.classList.remove('active');
 }
 
