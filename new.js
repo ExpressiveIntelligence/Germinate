@@ -116,31 +116,73 @@ function getNextID() {
 
 /// functions for messing with tags
 
-function parseTag(fullTagText) {
-  let tagFamily = Object.values(tagFamilies).find(family => fullTagText.startsWith(family.text));
-  let tagValue = fullTagText.replace(tagFamily.text, '').trim();
-  return {family: tagFamily.name, familyInfo: tagFamily, value: tagValue};
+function identicalTags(tag1, tag2) {
+  // note deliberately fuzzy comparison for isNegated – negative value can be undefined or false
+  return tag1.family === tag2.family && tag1.value === tag2.value && !tag1.isNegated === !tag2.isNegated;
 }
 
-function activeTags(thingNode) {
-  return [...thingNode.querySelectorAll('.tag')].map(tn => parseTag(tn.innerText));
-}
-
-function cycleTag(fullTagText) {
-  let tag = parseTag(fullTagText);
-  let tagFamily = tag.familyInfo;
-  let tagValue = tag.value;
-  let tagIndex = tagFamily.tags.indexOf(tagValue);
-  let nextTagIndex = (tagIndex + 1 >= tagFamily.tags.length) ? 0 : tagIndex + 1;
-  return tagFamily.text + ' ' + tagFamily.tags[nextTagIndex];
-}
-
-function negateTag(tagNode) {
-  if (tagNode.classList.contains('negated')) {
-    tagNode.classList.remove('negated');
+function addTag(thing, tag) {
+  // TODO sort by family on addition, so order is consistent + related tags grouped together?
+  if (tag.isNegated) {
+    // exit early if tag we're trying to add is already present
+    if (thing.tags.find(t => identicalTags(t, tag))) return;
+    // remove existing positive tag in same family, if any
+    thing.tags = thing.tags.filter(t => !(t.family === tag.family && !t.isNegated));
+    // add new tag to thing.tags
+    thing.tags.push(tag);
   } else {
-    tagNode.classList.add('negated');
+    // either modify existing positive tag in same family (if any) or add new tag to thing.tags directly
+    let existingPositiveTagInFamily = thing.tags.find(t => t.family === tag.family && !t.isNegated);
+    if (existingPositiveTagInFamily) {
+      existingPositiveTagInFamily.value = tag.value;
+    } else {
+      thing.tags.push(tag);
+    }
+    // remove existing negative tags in same family, if any
+    thing.tags = thing.tags.filter(t => !(t.family === tag.family && t.isNegated));
   }
+}
+
+function removeTag(thing, tag) {
+  thing.tags = thing.tags.filter(t => !identicalTags(t, tag));
+}
+
+function negateTag(thing, tag) {
+  let existingTag = thing.tags.find(t => identicalTags(t, tag));
+  existingTag.isNegated = !existingTag.isNegated;
+}
+
+function cycleTag(thing, tag) {
+  // TODO when cycling a negated tag, it might become identical to another negated tag from the same family!
+  // this leads to weirdness and is nontrivial to fix.
+  let existingTag = thing.tags.find(t => identicalTags(t, tag));
+  let family = tagFamilies[tag.family];
+  let valueIndex = family.tags.indexOf(tag.value);
+  let nextValueIndex = (valueIndex + 1 >= family.tags.length) ? 0 : valueIndex + 1;
+  existingTag.value = family.tags[nextValueIndex];
+}
+
+function rerenderTags(thingNode) {
+  let thing = intent[thingNode.id];
+  let tagsNode = thingNode.querySelector('.tags');
+  tagsNode.innerHTML = '';
+  for (let tag of thing.tags) {
+    let tagText = tagFamilies[tag.family].text + ' ' + tag.value;
+    let tagHtml = `<span class="tag${tag.isNegated ? ' negated' : ''}">${upcaseFirst(tagText.trim())}</span>`;
+    let tagNode = createNode(tagHtml);
+    tagNode.onclick = function(ev) {
+      if (negateModeActive || ev.shiftKey) {
+        negateTag(thing, tag);
+      } else {
+        cycleTag(thing, tag);
+      }
+      rerenderTags(thingNode);
+    }
+    tagsNode.appendChild(tagNode);
+  }
+  // re-render tag editor too if open on thing
+  let attachedTagEditorNode = thingNode.querySelector('.tag-editor');
+  if (attachedTagEditorNode) openTagEditor(thingNode);
 }
 
 /// set up the initial intent
@@ -257,16 +299,6 @@ for (let trigger of gameExampleTriggers) {
 
 /// other UI stuff
 
-function wireUpTagOnclick(thingTagNode) {
-  thingTagNode.onclick = function() {
-    if (negateModeActive) {
-      negateTag(thingTagNode);
-    } else {
-      thingTagNode.innerText = cycleTag(thingTagNode.innerText);
-    }
-  };
-}
-
 function randomEntityOrResourceName(intent) {
   let things = Object.values(intent);
   let entitiesAndResources = things.filter(thing => thing.type === 'entity' || thing.type === 'resource');
@@ -351,36 +383,21 @@ function randomizeThing(thingNode) {
   // if thing is an entity or resource, randomize tags
   if (thingType === 'entity' || thingType === 'resource') {
     // clear current tags
-    let thingTagsNode = thingNode.querySelector('.tags');
-    thingTagsNode.innerHTML = '';
+    thing.tags = [];
     // pick and add new tags, one for each valid tag family (other than 'optional')
     let validTagFamilies = Object.values(tagFamilies).filter(tf => tf.appliesTo.indexOf(thingType) > -1);
     validTagFamilies = validTagFamilies.filter(tf => tf.name !== 'optional');
     for (let tagFamily of validTagFamilies) {
       let value = randNth(tagFamily.tags);
-      addTagToThingNode(thingNode, {value, family: tagFamily.name});
+      addTag(thing, {value, family: tagFamily.name});
     }
     // randomly either add or don't add the 'optional' tag
     if (Math.random() > 0.5) {
-      addTagToThingNode(thingNode, {value: 'optional', family: 'optional'});
+      addTag(thing, {value: 'optional', family: 'optional'});
     }
+    // render new tags
+    rerenderTags(thingNode);
   }
-}
-
-function addTagToThingNode(thingNode, tag) {
-  // get family info about tag we're trying to add
-  let tagFamily = tagFamilies[tag.family];
-
-  // check if there's a current tag from same tag family. if so, remove
-  let thingTagNodes = [...thingNode.querySelectorAll('.tag')];
-  let tagNodeFromSameFamily = thingTagNodes.find(tn => tn.innerText.startsWith(tagFamily.text));
-  if (tagNodeFromSameFamily) tagNodeFromSameFamily.remove();
-
-  // now actually add the new tag
-  let tagText = `${tagFamily.text} ${tag.value}`;
-  let newThingTagNode = createNode(`<span class="tag">${upcaseFirst(tagText.trim())}</span>`);
-  thingNode.querySelector('.tags').appendChild(newThingTagNode);
-  wireUpTagOnclick(newThingTagNode);
 }
 
 function wireUpOnclickHandlers(thingNode) {
@@ -399,9 +416,6 @@ function wireUpOnclickHandlers(thingNode) {
     randomizeButton.onclick = function() {
       randomizeThing(thingNode);
     }
-  }
-  for (let tagNode of thingNode.querySelectorAll('.tag')) {
-    wireUpTagOnclick(tagNode);
   }
 }
 
@@ -432,19 +446,16 @@ function createEntityNode(entity) {
     <input type="text" class="thing-name" value="${entity.name}"
            placeholder="(random name)">
     <div class="entity-icon">${entity.icon}</div>
-    <div class="tags">`;
-  for (let tag of entity.tags) {
-    let tagText = tagFamilies[tag.family].text + ' ' + tag.value;
-    html += `<span class="tag${tag.isNegated ? ' negated' : ''}">${upcaseFirst(tagText.trim())}</span>`
-  }
-  html += `</div><a class="edit-tags">edit tags</a>`;
-  html += `</div>`;
+    <div class="tags"></div>
+    <a class="edit-tags">edit tags</a>
+  </div>`;
   let node = createNode(html);
   wireUpOnclickHandlers(node);
   let emojiNode = node.querySelector('.entity-icon');
   emojiNode.onclick = function() {
     openEmojiPicker(node);
   }
+  rerenderTags(node);
   return node;
 }
 
@@ -470,15 +481,12 @@ function createResourceNode(resource) {
     <div class="minibutton delete" title="Delete this resource">🗑️</div>
     <input type="text" class="thing-name" value="${resource.name}"
            placeholder="(random name)">
-    <div class="tags">`;
-  for (let tag of resource.tags) {
-    let tagText = tagFamilies[tag.family].text + ' ' + tag.value;
-    html += `<span class="tag${tag.isNegated ? ' negated' : ''}">${upcaseFirst(tagText.trim())}</span>`
-  }
-  html += `</div><a class="edit-tags">edit tags</a>`;
-  html += `</div>`;
+    <div class="tags"></div>
+    <a class="edit-tags">edit tags</a>
+  </div>`;
   let node = createNode(html);
   wireUpOnclickHandlers(node);
+  rerenderTags(node);
   return node;
 }
 
@@ -562,55 +570,41 @@ function createEmojiPickerNode(thingNode) {
 }
 
 function createTagEditorNode(thingType, thingNode) {
-  let thingTags = activeTags(thingNode);
+  // create top-level editor node
+  let thing = intent[thingNode.id];
   let html = `<div class="tag-editor">
-    <div class="close-tag-editor">X</div>`;
+    <div class="close-tag-editor">X</div>
+  </div>`;
+  let editorNode = createNode(html);
+  editorNode.querySelector('.close-tag-editor').onclick = function() {
+    editorNode.remove();
+  };
+  // create each tag family
   for (let familyName of Object.keys(tagFamilies)) {
     let family = tagFamilies[familyName];
     if (family.appliesTo.indexOf(thingType) < 0) continue;
-    html += `<div class="tag-family">${family.text}: `;
+    let familyNode = createNode(`<div class="tag-family">${family.text}: </div>`);
+    editorNode.appendChild(familyNode);
+    // create individual tag nodes within this family
     for (let tag of family.tags) {
-      let isActiveOnThing = thingTags.find(t => t.value === tag && t.family === familyName);
-      html += `<span class="tag${isActiveOnThing ? ' active' : ''}">${tag}</span>`;
-    }
-    html += `</div>`;
-  }
-  html += `</div>`;
-  let node = createNode(html);
-  let closeTagEditor = node.querySelector('.close-tag-editor');
-  closeTagEditor.onclick = function() {
-    node.remove();
-  }
-  for (let tagNode of node.querySelectorAll('.tag')) {
-    // TODO dear god this is brittle.
-    // maybe make thing tag nodes change the active editor tag node if you click em while the editor is open?
-    // maybe check if the tag family we're changing is negated, and persist the negation if it is?
-    // maybe change inner text of the existing thing tag node if there is one, to preserve order?
-    tagNode.onclick = function() {
-      let familyText = tagNode.parentNode.innerText.split(':')[0];
-      let family = Object.values(tagFamilies).find(tf => tf.text === familyText);
-      let thingTagNodes = [...thingNode.querySelectorAll('.tag')];
-      if (tagNode.classList.contains('active')) {
-        tagNode.classList.remove('active');
-        // remove corresponding tag from thingNode tags
-        thingTagNodes.find(tn => tn.innerText.startsWith(family.text)).remove();
-      } else {
-        let otherActiveEditorTagNodeInFamily = tagNode.parentNode.querySelector('.active');
-        if (otherActiveEditorTagNodeInFamily) {
-          otherActiveEditorTagNodeInFamily.classList.remove('active');
-          // remove corresponding tag from thingNode tags
-          thingTagNodes.find(tn => tn.innerText.startsWith(family.text)).remove();
+      let correspondingThingTag = thing.tags.find(t => t.value === tag && t.family === familyName);
+      let tagState = correspondingThingTag ? (correspondingThingTag.isNegated ? 'negated' : 'active') : '';
+      let tagNode = createNode(`<span class="tag ${tagState}">${tag}</span>`);
+      familyNode.appendChild(tagNode);
+      // set up onclick handler for this individual editor tag
+      tagNode.onclick = function(ev) {
+        if ((negateModeActive || ev.shiftKey) && tagState !== 'negated') {
+          addTag(thing, {family: familyName, value: tag, isNegated: true});
+        } else if (tagState === 'active') {
+          removeTag(thing, {family: familyName, value: tag});
+        } else {
+          addTag(thing, {family: familyName, value: tag});
         }
-        tagNode.classList.add('active');
-        // add corresponding tag to thingNode tags
-        let tagText = `${family.text} ${tagNode.innerText}`;
-        let newThingTagNode = createNode(`<span class="tag">${upcaseFirst(tagText.trim())}</span>`);
-        thingNode.querySelector('.tags').appendChild(newThingTagNode);
-        wireUpTagOnclick(newThingTagNode);
-      }
+        rerenderTags(thingNode);
+      };
     }
   }
-  return node;
+  return editorNode;
 }
 
 function createTriggerNode(trigger) {
