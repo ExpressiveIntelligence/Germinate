@@ -520,8 +520,8 @@ function createRelationshipNode(relationship) {
   </div>`;
   let node = createNode(html);
   wireUpOnclickHandlers(node);
-  node.onclick = function() {
-    if (negateModeActive) {
+  node.onclick = function(ev) {
+    if (negateModeActive || ev.shiftKey) {
       if (node.classList.contains('negated')) {
         node.classList.remove('negated');
       } else {
@@ -623,7 +623,7 @@ function createTriggerNode(trigger) {
   let html = `<div class="trigger" id="${trigger.id}">
     <div class="minibutton randomize" title="Randomize this trigger">🎲</div>
     <div class="minibutton delete" title="Delete this trigger">🗑️</div>
-    <!--<span class="not">NOT </span>-->
+    <span class="not">NOT</span>
     <div class="lhs">
       <h4>When</h4>
       <select class="whenSelect">${whenOptionsHtml}</select>
@@ -683,8 +683,8 @@ function createTriggerNode(trigger) {
   for (let i = 0; i < trigger.then[0].params.length; i++) {
     thenParamFields[i].value = trigger.then[0].params[i];
   }
-  node.onclick = function() {
-    if (negateModeActive) {
+  node.onclick = function(ev) {
+    if (negateModeActive || ev.shiftKey) {
       if (node.classList.contains('negated')) {
         node.classList.remove('negated');
       } else {
@@ -698,7 +698,6 @@ function createTriggerNode(trigger) {
 function createStaticTriggerNode(trigger) {
   let html = `<div class="trigger static" id="static_${trigger.id}">
     <div class="minibutton import" title="Add to intent">↩️</div>
-    <!--<span class="not">NOT </span>-->
     <div class="lhs">
       <h4>When</h4>
       <div class="contents">${trigger.when[0].cond}: ${trigger.when[0].params.join(', ')}</div>

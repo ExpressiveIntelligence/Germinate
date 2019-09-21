@@ -226,6 +226,19 @@ section.code {
   position: relative;
   text-align: center;
 }
+.trigger.negated {
+  border: 4px solid orangered;
+}
+.trigger .not {
+  background: orangered;
+  color: white;
+  display: none;
+  text-align: center;
+  width: 100%;
+}
+.trigger.negated .not {
+  display: block;
+}
 .trigger.new-button {
   display: block;
   padding: 5px 2px;
