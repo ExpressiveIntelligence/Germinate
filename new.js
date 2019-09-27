@@ -114,6 +114,10 @@ function getNextID() {
   return 'id' + lastID;
 }
 
+/// global variables
+
+let currentIntent, currentGameRules;
+
 /// functions for messing with tags
 
 function identicalTags(tag1, tag2) {
@@ -163,7 +167,7 @@ function cycleTag(thing, tag) {
 }
 
 function rerenderTags(thingNode) {
-  let thing = intent[thingNode.id];
+  let thing = currentIntent[thingNode.id];
   let tagsNode = thingNode.querySelector('.tags');
   tagsNode.innerHTML = '';
   for (let tag of thing.tags) {
@@ -185,115 +189,31 @@ function rerenderTags(thingNode) {
   if (attachedTagEditorNode) openTagEditor(thingNode);
 }
 
-/// set up the initial intent
+/// functions for messing with thingSets (intent and game rules datastructures)
 
-let intent = {};
-
-function addThingToIntent(thing, type) {
+function addThingToThingSet(thingSet, thing, type) {
   let id = getNextID();
   thing.id = id;
   if (type) thing.type = type;
   if (!thing.type) console.error('thing must have type!', thing);
-  intent[id] = thing;
+  thingSet[id] = thing;
 }
 
-let exampleEntities = [
-  {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]},
-  {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
-];
-
-let exampleResources = [
-  {
-    name: "Depression",
-    tags: [
-      {family: 'playerAttitude', value: 'bad'},
-      {family: 'initialLevel', value: 'low'},
-      {family: 'tendency', value: 'increase slowly'}
-    ]
-  },
-  {
-    name: "Resource2",
-    tags: [
-      {family: 'optional', value: 'optional'},
-      {family: 'playerAttitude', value: 'bad', isNegated: true},
-    ]
+function hydrateThingSet(storedThingSet) {
+  let thingSet = {};
+  for (let entity of storedThingSet.entities) {
+    addThingToThingSet(thingSet, entity, 'entity');
   }
-];
-
-let exampleRelationships = [
-  {lhs: "Friend", reltype: "collides with", rhs: "Insecurity"},
-  {lhs: "Insecurity", reltype: "produces", rhs: "Depression"}
-];
-
-let exampleTriggers = [
-  {
-    when: [{cond: 'Every tick', params: []}],
-    then: [{action: 'Do nothing', params: []}]
+  for (let resource of storedThingSet.resources) {
+    addThingToThingSet(thingSet, resource, 'resource');
   }
-];
-
-for (let entity of exampleEntities) {
-  addThingToIntent(entity, 'entity');
-}
-for (let resource of exampleResources) {
-  addThingToIntent(resource, 'resource');
-}
-for (let relationship of exampleRelationships) {
-  addThingToIntent(relationship, 'relationship');
-}
-for (let trigger of exampleTriggers) {
-  addThingToIntent(trigger, 'trigger');
-}
-
-/// set up the initial generated game rules
-
-let gameRules = {};
-
-function addThingToGameRules(thing, type) {
-  let id = getNextID();
-  thing.id = id;
-  if (type) thing.type = type;
-  if (!thing.type) console.error('thing must have type!', thing);
-  gameRules[id] = thing;
-}
-
-let gameExampleRules = {
-  entities: [
-    {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]}
-  ],
-  resources: [
-    {
-      name: "Depression",
-      tags: [
-        {family: 'playerAttitude', value: 'bad'},
-        {family: 'initialLevel', value: 'low'},
-        {family: 'tendency', value: 'increase slowly'}
-      ]
-    }
-  ],
-  relationships: [
-    {lhs: "Friend", reltype: "collides with", rhs: "Insecurity"},
-    {lhs: "Insecurity", reltype: "produces", rhs: "Depression"}
-  ],
-  triggers: [
-    {
-      when: [{cond: 'Resource greater than value', params: ['Depression', '5']}],
-      then: [{action: 'Spawn entity at', params: ['Friend', '0,0']}]
-    }
-  ]
-};
-
-for (let entity of gameExampleRules.entities) {
-  addThingToGameRules(entity, 'entity');
-}
-for (let resource of gameExampleRules.resources) {
-  addThingToGameRules(resource, 'resource');
-}
-for (let relationship of gameExampleRules.relationships) {
-  addThingToGameRules(relationship, 'relationship');
-}
-for (let trigger of gameExampleRules.triggers) {
-  addThingToGameRules(trigger, 'trigger');
+  for (let relationship of storedThingSet.relationships) {
+    addThingToThingSet(thingSet, relationship, 'relationship');
+  }
+  for (let trigger of storedThingSet.triggers) {
+    addThingToThingSet(thingSet, trigger, 'trigger');
+  }
+  return thingSet;
 }
 
 /// other UI stuff
@@ -308,11 +228,11 @@ function randomEntityOrResourceName(intent) {
 function randomizeTriggerParam(paramName) {
   paramName = paramName.toLowerCase();
   if (paramName.includes('entity') || paramName === 'target') {
-    let things = Object.values(intent);
+    let things = Object.values(currentIntent);
     let entities = things.filter(thing => thing.type === 'entity');
     return randNth(entities.map(e => e.name));
   } else if (paramName.includes('resource')) {
-    let things = Object.values(intent);
+    let things = Object.values(currentIntent);
     let resources = things.filter(thing => thing.type === 'resource');
     return randNth(resources.map(r => r.name));
   } else if (paramName === 'key') {
@@ -347,7 +267,7 @@ function randomizeTriggerParam(paramName) {
 }
 
 function randomizeThing(thingNode) {
-  let thing = intent[thingNode.id];
+  let thing = currentIntent[thingNode.id];
   let thingType = thing.type;
   let theme = getCurrentTheme();
   if (thingType === 'entity') {
@@ -365,9 +285,9 @@ function randomizeThing(thingNode) {
     thing.name = newName;
     thingNode.querySelector('.thing-name').value = newName;
   } else if (thingType === 'relationship') {
-    thing.lhs = randomEntityOrResourceName(intent);
+    thing.lhs = randomEntityOrResourceName(currentIntent);
     thing.reltype = randNth(relationshipTypes);
-    thing.rhs = randomEntityOrResourceName(intent);
+    thing.rhs = randomEntityOrResourceName(currentIntent);
     // NOTE: replaceWith doesn't work in IE, maybe switch to replaceChild instead?
     thingNode.replaceWith(createRelationshipNode(thing));
   } else if (thingType === 'trigger') {
@@ -407,7 +327,7 @@ function wireUpOnclickHandlers(thingNode) {
   }
   for (let deleteButton of thingNode.querySelectorAll('.delete')) {
     deleteButton.onclick = function() {
-      delete intent[thingNode.id];
+      delete currentIntent[thingNode.id];
       thingNode.remove();
     }
   }
@@ -422,8 +342,8 @@ function wireUpStaticOnclickHandlers(thingNode) {
   for (let importButton of thingNode.querySelectorAll('.import')) {
     importButton.onclick = function() {
       let thingID = thingNode.id.replace('static_', '');
-      let thing = gameRules[thingID];
-      addThingToIntent(thing);
+      let thing = currentGameRules[thingID];
+      addThingToThingSet(currentIntent, thing);
       let [uiBuilderFunction, targetList] = {
         entity: [createEntityNode, intentEntitiesList],
         resource: [createResourceNode, intentResourcesList],
@@ -562,7 +482,7 @@ function createEmojiPickerNode(thingNode) {
   for (let emojiSpan of node.querySelectorAll('.emoji')) {
     emojiSpan.onclick = function() {
       thingEmojiNode.innerText = emojiSpan.innerText;
-      intent[thingID].icon = emojiSpan.innerText;
+      currentIntent[thingID].icon = emojiSpan.innerText;
     }
   }
   return node;
@@ -570,7 +490,7 @@ function createEmojiPickerNode(thingNode) {
 
 function createTagEditorNode(thingType, thingNode) {
   // create top-level editor node
-  let thing = intent[thingNode.id];
+  let thing = currentIntent[thingNode.id];
   let html = `<div class="tag-editor">
     <div class="close-tag-editor">X</div>
   </div>`;
@@ -736,20 +656,30 @@ function openTagEditor(thingNode) {
   thingNode.appendChild(tagEditorNode);
 }
 
-// set up initial intent UI
-for (let thing of Object.values(intent)) {
-  let [uiBuilderFunction, targetList] = {
-    entity: [createEntityNode, intentEntitiesList],
-    resource: [createResourceNode, intentResourcesList],
-    relationship: [createRelationshipNode, intentRelationshipsList],
-    trigger: [createTriggerNode, intentTriggersList]
-  }[thing.type];
-  let node = uiBuilderFunction(thing);
-  targetList.lastElementChild.insertAdjacentElement('beforebegin', node);
+function redrawIntentUI(intent) {
+  // remove existing UI nodes for previous intent
+  for (let targetList of [intentEntitiesList, intentResourcesList,
+                          intentRelationshipsList, intentTriggersList]) {
+    // remove all the children except the new-button.
+    // we know this is awful but everything else we tried causes weird bugs.
+    let newButton = targetList.querySelector('.new-button');
+    targetList.innerHTML = '';
+    targetList.appendChild(newButton);
+  }
+  // create new UI nodes for things in intent
+  for (let thing of Object.values(intent)) {
+    let [uiBuilderFunction, targetList] = {
+      entity: [createEntityNode, intentEntitiesList],
+      resource: [createResourceNode, intentResourcesList],
+      relationship: [createRelationshipNode, intentRelationshipsList],
+      trigger: [createTriggerNode, intentTriggersList]
+    }[thing.type];
+    let node = uiBuilderFunction(thing);
+    targetList.lastElementChild.insertAdjacentElement('beforebegin', node);
+  }
 }
 
-// set up initial generated game rules UI
-function setCurrentGameRules(rules) {
+function redrawGameRulesUI(rules) {
   // remove existing UI nodes for previous ruleset
   for (let targetList of [generatedEntitiesList, generatedResourcesList,
                           generatedRelationshipsList, generatedTriggersList]) {
@@ -766,7 +696,6 @@ function setCurrentGameRules(rules) {
     targetList.appendChild(uiBuilderFunction(thing));
   }
 }
-setCurrentGameRules(gameRules);
 
 // add click handlers to new thing buttons in intent UI
 newEntityButton.onclick = function() {
@@ -776,7 +705,7 @@ newEntityButton.onclick = function() {
     icon: "❓",
     tags: [{family: 'optional', value: 'optional'}]
   };
-  addThingToIntent(defaultEntity);
+  addThingToThingSet(currentIntent, defaultEntity);
   let node = createEntityNode(defaultEntity);
   intentEntitiesList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
@@ -786,13 +715,13 @@ newResourceButton.onclick = function() {
     name: "",
     tags: [{family: 'optional', value: 'optional'}]
   };
-  addThingToIntent(defaultResource);
+  addThingToThingSet(currentIntent, defaultResource);
   let node = createResourceNode(defaultResource);
   intentResourcesList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 newRelationshipButton.onclick = function() {
   let defaultRelationship = {type: 'relationship', lhs: '', reltype: 'is related to', rhs: ''};
-  addThingToIntent(defaultRelationship);
+  addThingToThingSet(currentIntent, defaultRelationship);
   let node = createRelationshipNode(defaultRelationship);
   intentRelationshipsList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
@@ -802,7 +731,7 @@ newTriggerButton.onclick = function() {
     when: [{cond: 'Every tick', params: []}],
     then: [{action: 'Do nothing', params: []}]
   };
-  addThingToIntent(defaultTrigger);
+  addThingToThingSet(currentIntent, defaultTrigger);
   let node = createTriggerNode(defaultTrigger);
   intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
@@ -868,38 +797,14 @@ viewCodeGameRules.onclick = function() {
 
 /// game pool navigation
 
-let gamePools = [
-  [{file: 'games/depression-A-game_1.lp', rules: gameRules},
-   {file: 'games/depression-A-game_2.lp', rules: gameRules},
-   {file: 'games/depression-A-game_3.lp', rules: gameRules},
-   {file: 'games/depression-A-game_4.lp', rules: gameRules},
-   {file: 'games/depression-A-game_5.lp', rules: gameRules}],
-
-  [{file: 'games/depression-B-game_1.lp', rules: gameRules},
-   {file: 'games/depression-B-game_2.lp', rules: gameRules}],
-
-  [{file: 'games/depression-C-game_1.lp', rules: gameRules}],
-
-  [{file: 'games/depression-D-game_1.lp', rules: gameRules},
-   {file: 'games/depression-D-game_2.lp', rules: gameRules},
-   {file: 'games/depression-D-game_3.lp', rules: gameRules},
-   {file: 'games/depression-D-game_4.lp', rules: gameRules},
-   {file: 'games/depression-D-game_5.lp', rules: gameRules}],
-
-  [{file: 'games/depression-E-game_1.lp', rules: gameRules},
-   {file: 'games/depression-E-game_2.lp', rules: gameRules},
-   {file: 'games/depression-E-game_3.lp', rules: gameRules},
-   {file: 'games/depression-E-game_4.lp', rules: gameRules},
-   {file: 'games/depression-E-game_5.lp', rules: gameRules}]
-];
-
 let currentPoolIndex = 0;
 let currentGameIndex = 0;
 
 function updateCurrentGame() {
   let currentPool = gamePools[currentPoolIndex];
-  let {file, rules} = currentPool[currentGameIndex];
-  gameCounter.innerText = `${currentGameIndex + 1} / ${currentPool.length}`;
+  //let {intent, intentFile, games} = currentPool;
+  let {file, rules} = currentPool.games[currentGameIndex];
+  gameCounter.innerText = `${currentGameIndex + 1} / ${currentPool.games.length}`;
 
   // load the actual game
   let xhttp = new XMLHttpRequest();
@@ -920,7 +825,17 @@ function updateCurrentGame() {
   xhttp.open("GET", file, true);
   xhttp.send();
 
-  setCurrentGameRules(rules);
+  // update the intent datastructure and UI
+  currentIntent = hydrateThingSet(currentPool.intent);
+  redrawIntentUI(currentIntent);
+
+  // update the game rules datastructure and UI
+  currentGameRules = hydrateThingSet(rules);
+  redrawGameRulesUI(currentGameRules);
+
+  // TODO make it so that when you update the intent (via e.g. randomizeWhatever)
+  // it doesn't update the stored version of the things that you're updating.
+  // the issue here is hard to explain; if in doubt ask Max.
 
   if (currentGameIndex <= 0) {
     previousGame.disabled = true;
@@ -928,7 +843,7 @@ function updateCurrentGame() {
     previousGame.disabled = false;
   }
 
-  if (currentGameIndex >= currentPool.length - 1) {
+  if (currentGameIndex >= currentPool.games.length - 1) {
     nextGame.disabled = true;
   } else {
     nextGame.disabled = false;
