@@ -91,9 +91,26 @@ section.code {
   resize: none;
   width: 100%;
 }
+/* game navigator empty state */
+.game-navigator-empty-state {
+  background: white;
+  padding: 0;
+  padding-left: 0;
+  padding-right: 2rem;
+  width: 70%;
+}
+.empty-state-message {
+  color: #555;
+  font-size: 1.5rem;
+  margin: 0 auto;
+  padding-top: 30vh;
+  text-align: center;
+  width: 75%;
+}
 /* game navigator styles */
 .game-navigator {
   background: white;
+  display: none; /* display enabled by code later on */
   padding: 0;
   padding-left: 0;
   padding-right: 2rem;

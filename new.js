@@ -797,10 +797,18 @@ viewCodeGameRules.onclick = function() {
 
 /// game pool navigation
 
-let currentPoolIndex = 0;
+let currentPoolIndex = -2; // so that it'll still be -1 when we increment it the first time
 let currentGameIndex = 0;
 
 function updateCurrentGame() {
+  if (currentPoolIndex < 0) {
+    // if this is the first batch of games we've generated,
+    // swap out the game navigator empty state for the actual game navigator
+    currentPoolIndex = 0;
+    gameNavigator.style.display = 'block';
+    gameNavigatorEmptyState.style.display = 'none';
+  }
+
   let currentPool = gamePools[currentPoolIndex];
   //let {intent, intentFile, games} = currentPool;
   let {file, rules} = currentPool.games[currentGameIndex];
@@ -866,4 +874,6 @@ nextGame.onclick = function() {
   updateCurrentGame();
 }
 
-updateCurrentGame();
+// draw initial example intent
+currentIntent = hydrateThingSet(exampleIntent);
+redrawIntentUI(currentIntent);

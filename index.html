@@ -106,7 +106,15 @@ reading(goal(reduce),resource(r_1_XX_)).</textarea>
         </section>
         <div class="generate-games" id="generateGames">Generate games »</div>
       </div>
-      <div class="game-navigator">
+      <div class="game-navigator-empty-state" id="gameNavigatorEmptyState">
+        <div class="empty-state-message">
+          Hi there! There aren't any games here yet because you haven't generated any.<br><br>
+          Modify the design intent on the left to tell me what kind of games you want to generate,
+          then hit the "Generate Games" button at the bottom!<br><br>
+          Once you do that, I'm sure some games will appear.
+        </div>
+      </div>
+      <div class="game-navigator" id="gameNavigator">
         <div class="game-navigator-topbar">
           <input class="gametitle" type="text" value="A Game about Depression">
           <button class="back" id="previousGame">« Previous game</button>
