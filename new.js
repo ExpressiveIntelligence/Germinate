@@ -257,43 +257,42 @@ function addThingToGameRules(thing, type) {
   gameRules[id] = thing;
 }
 
-let gameExampleEntities = [
-  {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]}
-];
+let gameExampleRules = {
+  entities: [
+    {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'playerAttitude', value: 'bad'},
+        {family: 'initialLevel', value: 'low'},
+        {family: 'tendency', value: 'increase slowly'}
+      ]
+    }
+  ],
+  relationships: [
+    {lhs: "Friend", reltype: "collides with", rhs: "Insecurity"},
+    {lhs: "Insecurity", reltype: "produces", rhs: "Depression"}
+  ],
+  triggers: [
+    {
+      when: [{cond: 'Resource greater than value', params: ['Depression', '5']}],
+      then: [{action: 'Spawn entity at', params: ['Friend', '0,0']}]
+    }
+  ]
+};
 
-let gameExampleResources = [
-  {
-    name: "Depression",
-    tags: [
-      {family: 'playerAttitude', value: 'bad'},
-      {family: 'initialLevel', value: 'low'},
-      {family: 'tendency', value: 'increase slowly'}
-    ]
-  }
-];
-
-let gameExampleRelationships = [
-  {lhs: "Friend", reltype: "collides with", rhs: "Insecurity"},
-  {lhs: "Insecurity", reltype: "produces", rhs: "Depression"}
-];
-
-let gameExampleTriggers = [
-  {
-    when: [{cond: 'Resource greater than value', params: ['Depression', '5']}],
-    then: [{action: 'Spawn entity at', params: ['Friend', '0,0']}]
-  }
-];
-
-for (let entity of gameExampleEntities) {
+for (let entity of gameExampleRules.entities) {
   addThingToGameRules(entity, 'entity');
 }
-for (let resource of gameExampleResources) {
+for (let resource of gameExampleRules.resources) {
   addThingToGameRules(resource, 'resource');
 }
-for (let relationship of gameExampleRelationships) {
+for (let relationship of gameExampleRules.relationships) {
   addThingToGameRules(relationship, 'relationship');
 }
-for (let trigger of gameExampleTriggers) {
+for (let trigger of gameExampleRules.triggers) {
   addThingToGameRules(trigger, 'trigger');
 }
 
