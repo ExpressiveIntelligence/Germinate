@@ -1,4 +1,4 @@
-label(resource(r_1_XX_),r(1),private).
+label(resource(r_1_XX_),depression,private).
 
 entity(e_1_XX_).
 
