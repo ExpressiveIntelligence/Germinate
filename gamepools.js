@@ -34,9 +34,141 @@ let exampleIntent = {
   ]
 };
 
+let gamePoolAIntent = {
+  entities: [
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'tendency', value: 'decrease slowly', isNegated: true},
+        {family: 'tendency', value: 'decrease rapidly', isNegated: true},
+        {family: 'tendency', value: 'stay the same', isNegated: true},
+        {family: 'tendency', value: 'fluctuate wildly', isNegated: true}
+      ]
+    }
+  ],
+  relationships: [],
+  triggers: []
+};
+
+let gamePoolBIntent = {
+  entities: [
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'playerAttitude', value: 'bad'},
+        {family: 'tendency', value: 'decrease slowly', isNegated: true},
+        {family: 'tendency', value: 'decrease rapidly', isNegated: true},
+        {family: 'tendency', value: 'stay the same', isNegated: true},
+        {family: 'tendency', value: 'fluctuate wildly', isNegated: true}
+      ]
+    }
+  ],
+  relationships: [],
+  triggers: [
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '']}]
+    }
+  ]
+};
+
+let gamePoolCIntent = {
+  entities: [
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'playerAttitude', value: 'bad'},
+        {family: 'tendency', value: 'decrease slowly', isNegated: true},
+        {family: 'tendency', value: 'decrease rapidly', isNegated: true},
+        {family: 'tendency', value: 'stay the same', isNegated: true},
+        {family: 'tendency', value: 'fluctuate wildly', isNegated: true}
+      ]
+    }
+  ],
+  relationships: [],
+  triggers: [
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '']}]
+    }
+  ]
+};
+
+let gamePoolDIntent = {
+  entities: [
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'playerAttitude', value: 'bad'}
+      ]
+    }
+  ],
+  relationships: [],
+  triggers: [
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '']}]
+    }
+  ]
+};
+
+let gamePoolEIntent = {
+  entities: [
+    {name: "", icon: "❓", tags: []},
+    {name: "", icon: "❓", tags: [{family: 'optional', value: 'optional'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'playerAttitude', value: 'bad'}
+      ]
+    }
+  ],
+  relationships: [],
+  triggers: [
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '']}]
+    },
+    {
+      when: [{cond: 'Entity is clicked', params: ['']}],
+      then: [{action: 'Increase resource value', params: ['Depression', '']}],
+      isNegated: true
+    }
+  ]
+};
+
 let exampleGameRules = {
   entities: [
-    {name: "Friend", icon: "💁", tags: [{family: 'playerAttitude', value: 'good'}]}
+    {name: "Friend", icon: "💁", tags: [
+      {family: 'playerAttitude', value: 'good'}
+    ]}
   ],
   resources: [
     {
@@ -60,19 +192,228 @@ let exampleGameRules = {
   ]
 };
 
+let gameA1Rules = {
+  entities: [
+    {name: "Brain", icon: "🧠", tags: [{family: 'playerAttitude', value: 'neutral'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'tendency', value: 'increase slowly'}
+      ]
+    }
+  ],
+  relationships: [
+  ],
+  triggers: [
+    {
+      when: [{cond: 'Mouse is clicked', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '1']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '1']}]
+    },
+    {
+      when: [{cond: 'Resource greater than value', params: ['Depression', '9']}],
+      then: [{action: 'Lose game', params: ['Game Over']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Brain']}]
+    }
+  ]
+};
+
+let gameA2Rules = {
+  entities: [
+    {name: "Brain", icon: "🧠", tags: [{family: 'playerAttitude', value: 'neutral'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'tendency', value: 'increase slowly'}
+      ]
+    }
+  ],
+  relationships: [],
+  triggers: [
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '1']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Brain']}]
+    }
+  ]
+};
+
+let gameA3Rules = {
+  entities: [
+    {name: "Brain", icon: "🧠", tags: [{family: 'playerAttitude', value: 'neutral'}]},
+    {name: "Good thought", icon: "✨", tags: [{family: 'playerAttitude', value: 'neutral'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'playerAttitude', value: 'bad'},
+        {family: 'tendency', value: 'increase slowly'}
+      ]
+    }
+  ],
+  relationships: [
+    {lhs: "Good thought", reltype: "collides with", rhs: "Brain"},
+    {lhs: "Good thought", reltype: "consumes", rhs: "Brain"},
+    {lhs: "Good thought", reltype: "avoids", rhs: "Cursor"}
+  ],
+  triggers: [
+    {
+      when: [{cond: 'Entity is clicked', params: ['Good thought']}],
+      then: [{action: 'Spawn entity at', params: ['Brain', 'BrainSpawnPoint']}]
+    },
+    {
+      when: [{cond: 'Entity collides with entity', params: ['Brain', 'Good thought']}],
+      then: [{action: 'Delete entity', params: ['Brain']}]
+    },
+    {
+      when: [{cond: 'Resource greater than value', params: ['Depression', '9']}],
+      then: [{action: 'Lose game', params: ['Game Over']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '1']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Make entity look at', params: ['Good thought', 'Cursor']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Move entity away from', params: ['Good thought', 'Cursor']}]
+    },
+    { // TODO Eventually probably want all 'Every frame' thens in same trigger
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Brain']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Good thought']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Good thought', 'Brain']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Good thought', 'Good thought']}]
+    }
+  ]
+};
+
+let gameA4Rules = {
+  entities: [
+    {name: "Brain", icon: "🧠", tags: [{family: 'playerAttitude', value: 'bad'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'tendency', value: 'increase slowly'}
+      ]
+    }
+  ],
+  relationships: [
+    {lhs: "Brain", reltype: "produces", rhs: "Depression"},
+  ],
+  triggers: [
+    {
+      when: [{cond: 'Entity is clicked', params: ['Brain']}],
+      then: [{action: 'Increase resource value', params: ['Depression', '1']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Make entity look at', params: ['Brain', 'Cursor']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Move entity away from', params: ['Brain', 'Cursor']}]
+    },
+    {
+      when: [{cond: 'Resource greater than value', params: ['Depression', '8']}],
+      then: [{action: 'Lose game', params: ['Game Over']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Brain']}]
+    }
+  ]
+};
+
+let gameA5Rules = {
+  entities: [
+    {name: "Brain", icon: "🧠", tags: [{family: 'playerAttitude', value: 'good'}]},
+    {name: "Good thought", icon: "✨", tags: [{family: 'playerAttitude', value: 'complicated'}]}
+  ],
+  resources: [
+    {
+      name: "Depression",
+      tags: [
+        {family: 'initialLevel', value: 'low'},
+        {family: 'playerAttitude', value: 'bad'},
+        {family: 'tendency', value: 'increase slowly'}
+      ]
+    }
+  ],
+  relationships: [
+    {lhs: "Good thought", reltype: "collides with", rhs: "Brain"},
+    {lhs: "Good thought", reltype: "avoids", rhs: "Cursor"}
+  ],
+  triggers: [
+    {
+      when: [{cond: 'Entity collides with entity', params: ['Brain', 'Good thought']}],
+      then: [{action: 'Win game', params: ['CLEARED']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Increase resource value', params: ['Depression', '1']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Make entity look at', params: ['Good thought', 'Cursor']}]
+    },
+    {
+      when: [{cond: 'Mouse is held', params: []}],
+      then: [{action: 'Move entity away from', params: ['Good thought', 'Cursor']}]
+    },
+    { // TODO Eventually probably want all 'Every frame' thens in same trigger
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Brain']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Brain', 'Good thought']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Good thought', 'Brain']}]
+    },
+    {
+      when: [{cond: 'Every frame', params: []}],
+      then: [{action: 'Prevent entity overlap', params: ['Good thought', 'Good thought']}]
+    }
+  ]
+};
+
 /// GODAWFUL HACKS
 
-let gamePoolAIntent = exampleIntent;
-let gamePoolBIntent = exampleIntent;
-let gamePoolCIntent = exampleIntent;
-let gamePoolDIntent = exampleIntent;
-let gamePoolEIntent = exampleIntent;
-
-let gameA1Rules = exampleGameRules;
-let gameA2Rules = exampleGameRules;
-let gameA3Rules = exampleGameRules;
-let gameA4Rules = exampleGameRules;
-let gameA5Rules = exampleGameRules;
 let gameB1Rules = exampleGameRules;
 let gameB2Rules = exampleGameRules;
 let gameB3Rules = exampleGameRules;
