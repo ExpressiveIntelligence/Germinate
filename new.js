@@ -427,7 +427,9 @@ function createStaticResourceNode(resource) {
 function createRelationshipNode(relationship) {
   let optionsHtml = '';
   for (let reltype of relationshipTypes) {
-    optionsHtml += `<option value=""${relationship.reltype === reltype ? ' selected' : ''}>${reltype}</option>`;
+    optionsHtml += `<option value="${reltype}"${relationship.reltype === reltype ? ' selected' : ''}>
+                   ${reltype}
+                   </option>`;
   }
   let html = `<div class="relationship" id="${relationship.id}">
     <div class="minibutton randomize" title="Randomize this relationship">🎲</div>
@@ -438,6 +440,17 @@ function createRelationshipNode(relationship) {
     <div class="minibutton delete" title="Delete this relationship">🗑️</div>
   </div>`;
   let node = createNode(html);
+  // update the reltype when the dropdown value changes
+  node.querySelector('select').onchange = function(ev) {
+    currentIntent[relationship.id].reltype = ev.target.value;
+  }
+  // update the lhs and rhs values when the corresponding text input values change
+  node.querySelectorAll('input[type="text"]')[0].oninput = function(ev) {
+    currentIntent[relationship.id].lhs = ev.target.value;
+  }
+  node.querySelectorAll('input[type="text"]')[1].oninput = function(ev) {
+    currentIntent[relationship.id].rhs = ev.target.value;
+  }
   wireUpOnclickHandlers(node);
   node.onclick = function(ev) {
     if (negateModeActive || ev.shiftKey) {
