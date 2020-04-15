@@ -1,5 +1,5 @@
 function makeThingASPHandle(thing) {
-  return `${thing.type}(${thing.type[0]}(${thing.id}))`;
+  return `${thing.type}(${thing.type[0]}(${thing.aspID}))`;
 }
 
 function findThingWithName(intent, name) {
@@ -72,7 +72,7 @@ function generateASPForEntity(entity) {
   // label is actually just emoji icon for now
   // if icon is the question mark, swap it for a random one from the current theme
   const icon = entity.icon === '❓' ? randNth(getCurrentTheme().icons) : entity.icon;
-  asp += `label(${thingASPHandle},${icon},write).\n`;
+  //asp += `label(${thingASPHandle},${icon},write).\n`; // emoji labels seem to cause problems – disable for now
   // set its valence (good, bad, whatever)
   let valenceTags = entity.tags.filter(t => t.family === 'playerAttitude');
   for (let valenceTag of valenceTags) {
@@ -87,7 +87,7 @@ function generateASPForResource(resource) {
   const thingASPHandle = makeThingASPHandle(resource);
   const thingName = resource.name === '' ? '$$RANDOM_NAME$$' : resource.name;
   let asp = `% RESOURCE: ${thingName} (${resource.id})\n`;
-  asp += `label(${thingASPHandle},${thingName},write).\n`;
+  //asp += `label(${thingASPHandle},${thingName},write).\n`; // resource labels seem to cause problems – disable for now
   // set its valence (good, bad, whatever)
   let valenceTags = resource.tags.filter(t => t.family === 'playerAttitude');
   for (let valenceTag of valenceTags) {
@@ -154,8 +154,9 @@ function generateASPForIntent(intent) {
   // NB: this is a *hydrated* intent! it's just an object with keys of idN
   // and values of the things that are in the intent.
   // don't pass in a stored intent – those are shaped differently and we will get confused!
+
+  // generate ASP header comment
   let asp = `% generated at ${Date.now()}\n\n`;
-  // TODO rest of the universal preamble
 
   // figure out how many entity slots we'll need, set min and max entities
   const entities = Object.values(intent).filter(t => t.type === 'entity');
@@ -171,10 +172,32 @@ function generateASPForIntent(intent) {
   asp += `#const min_resources = ${minResourceSlots}.
 #const max_resources = ${maxResourceSlots}.\n`;
 
+  // assign aspID properties to all the entities and resources
+  for (let i = 0; i < entities.length; i++) {
+    entities[i].aspID = i + 1;
+  }
+  for (let i = 0; i < resources.length; i++) {
+    resources[i].aspID = i + 1;
+  }
+
+  // set min and max timers, assuming these are always constants
+  asp += `#const min_timers = 0.
+#const max_timers = 2.\n`;
+
   // set min and max outcomes, assuming these are always constants
   asp += `#const min_outcomes = 2.
 #const max_outcomes = 10.
-#const min_end_outcomes = 0.\n\n`;
+#const min_end_outcomes = 0.
+#const max_end_outcomes = 1.\n`;
+
+  // set the remaining utility constants
+  asp += `#const max_resource_change_per = 2.
+#const max_conditions_per = 2.\n\n`;
+
+  // add an entity pool expression for the first entity type.
+  // afaict we need at least one of these or else Gemini won't generate any entities?
+  // i honestly don't know why this works, but it's in dinner_intent.lp sooooo...
+  asp += `:- 0 {pool(${makeThingASPHandle(entities[0])},_,_,_)} 0.\n\n`
 
   // intent has: entities, resources, relationships, triggers
   for (let entity of entities) {
