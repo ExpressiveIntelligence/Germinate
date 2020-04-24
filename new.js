@@ -108,10 +108,8 @@ let tagFamilies = {
 
 /// thing ID generation
 
-let lastID = -1;
-function getNextID() {
-  lastID++;
-  return 'id' + lastID;
+function genID() {
+  return 'id' + Math.random().toString().split('.')[1];
 }
 
 /// global variables
@@ -192,7 +190,7 @@ function rerenderTags(thingNode) {
 /// functions for messing with thingSets (intent and game rules datastructures)
 
 function addThingToThingSet(thingSet, thing, type) {
-  let id = getNextID();
+  let id = genID();
   thing.id = id;
   if (type) thing.type = type;
   if (!thing.type) console.error('thing must have type!', thing);
@@ -834,6 +832,9 @@ function updateCurrentGame() {
       // we have to run this first, so that the errors on first game load in the rest of the function
       // don't prevent the rules code from being loaded. this kind of sucks but don't mess with it for now.
       gameRulesCodeNode.innerHTML = this.responseText.split('==========')[0];
+
+      const gameInfo = parseGameASP(this.responseText.split('==========')[0]);
+      console.log(gameInfo);
 
       // Destroy the current game
       if ( game != "undefined") {
