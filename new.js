@@ -3,6 +3,10 @@
 
 /// generic utility functions
 
+function clone(data) {
+  return JSON.parse(JSON.stringify(data));
+}
+
 function upcaseFirst(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -808,56 +812,11 @@ viewCodeGameRules.onclick = function() {
 
 /// game pool navigation
 
-let currentPoolIndex = -2; // so that it'll still be -1 when we increment it the first time
+let loadedGames = [];
 let currentGameIndex = 0;
 
-function updateCurrentGame() {
-  if (currentPoolIndex < 0) {
-    // if this is the first batch of games we've generated,
-    // swap out the game navigator empty state for the actual game navigator
-    currentPoolIndex = 0;
-    gameNavigator.style.display = 'block';
-    gameNavigatorEmptyState.style.display = 'none';
-  }
-
-  let currentPool = gamePools[currentPoolIndex];
-  //let {intent, intentFile, games} = currentPool;
-  let {file, rules} = currentPool.games[currentGameIndex];
-  gameCounter.innerText = `${currentGameIndex + 1} / ${currentPool.games.length}`;
-
-  // load the actual game
-  let xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      // we have to run this first, so that the errors on first game load in the rest of the function
-      // don't prevent the rules code from being loaded. this kind of sucks but don't mess with it for now.
-      gameRulesCodeNode.innerHTML = this.responseText.split('==========')[0];
-
-      const gameInfo = parseGameASP(this.responseText.split('==========')[0]);
-      console.log(gameInfo);
-
-      // Destroy the current game
-      if ( game != "undefined") {
-        game.destroy();
-      }
-      loadGame(this.responseText);
-    }
-  };
-  console.log("loading game file:", file)
-  xhttp.open("GET", file, true);
-  xhttp.send();
-
-  // update the intent datastructure and UI
-  currentIntent = hydrateThingSet(currentPool.intent);
-  redrawIntentUI(currentIntent);
-
-  // update the game rules datastructure and UI
-  currentGameRules = hydrateThingSet(rules);
-  redrawGameRulesUI(currentGameRules);
-
-  // TODO make it so that when you update the intent (via e.g. randomizeWhatever)
-  // it doesn't update the stored version of the things that you're updating.
-  // the issue here is hard to explain; if in doubt ask Max.
+function updateGameIndexDisplayState() {
+  gameCounter.innerText = `${currentGameIndex + 1} / ${loadedGames.length}`;
 
   if (currentGameIndex <= 0) {
     previousGame.disabled = true;
@@ -865,17 +824,36 @@ function updateCurrentGame() {
     previousGame.disabled = false;
   }
 
-  if (currentGameIndex >= currentPool.games.length - 1) {
+  if (currentGameIndex >= loadedGames.length - 1) {
     nextGame.disabled = true;
   } else {
     nextGame.disabled = false;
   }
 }
 
+function updateCurrentGame() {
+  const gameInfo = loadedGames[currentGameIndex];
+
+  // Destroy the current game, if any
+  if (game != "undefined") game.destroy();
+
+  loadGame(gameInfo.asp);
+
+  gameRulesCodeNode.innerHTML = gameInfo.asp;
+
+  // Update the game rules datastructure and UI.
+  // Need to clone the stored copy of the game rules here so that if the user copies some things
+  // from currentGameRules over to the intent and then modifies them in the intent, it doesn't
+  // also modify the original versions of those things in the stored game rules.
+  currentGameRules = clone(gameInfo.rules);
+  redrawGameRulesUI(currentGameRules);
+
+  updateGameIndexDisplayState();
+}
+
 generateGames.onclick = function() {
-  currentPoolIndex += 1;
   currentGameIndex = 0;
-  updateCurrentGame();
+  requestGamesFromServer(currentIntent);
 }
 
 previousGame.onclick = function() {
@@ -891,3 +869,47 @@ nextGame.onclick = function() {
 // draw initial example intent
 currentIntent = hydrateThingSet(exampleIntent);
 redrawIntentUI(currentIntent);
+
+/// websocket setup
+
+function requestGamesFromServer(intent) {
+  const req = {
+    batchID: 'batch' + Date.now(),
+    intent: generateASPForIntent(intent)
+  };
+  socket.send(JSON.stringify(req));
+}
+
+function receiveGameFromServer(gameInfo) {
+  const firstGameInNewBatch = !loadedGames.find(g => g.batchID === gameInfo.batchID);
+  if (firstGameInNewBatch) {
+    // clear the previous batch (if any)
+    loadedGames = [];
+    currentGameIndex = 0;
+    // swap out the game navigator empty state for the actual game navigator
+    // (only required for the first batch)
+    gameNavigator.style.display = 'block';
+    gameNavigatorEmptyState.style.display = 'none';
+  }
+  const [asp, rulesHTML] = gameInfo.game.split('==========');
+  gameInfo.asp = asp;
+  gameInfo.rulesHTML = rulesHTML;
+  gameInfo.rules = parseGameASP(asp).things;
+  loadedGames.push(gameInfo);
+  if (firstGameInNewBatch) {
+    updateCurrentGame();
+  } else {
+    updateGameIndexDisplayState();
+  }
+}
+
+const socket = new WebSocket('ws://127.0.0.1:3000');
+socket.onopen = function(ev) {
+  console.log(ev);
+  requestGamesFromServer(currentIntent);
+};
+socket.onmessage = function(ev) {
+  const data = JSON.parse(ev.data);
+  console.log('data:', data);
+  receiveGameFromServer(data);
+};
