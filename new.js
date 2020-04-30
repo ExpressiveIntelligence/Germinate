@@ -634,11 +634,15 @@ function createStaticTriggerNode(trigger) {
     <div class="minibutton import" title="Add to intent">↩️</div>
     <div class="lhs">
       <h4>When</h4>
-      <div class="contents">${trigger.when[0].cond}: ${trigger.when[0].params.join(', ')}</div>
+      <div class="contents">
+        ${trigger.when.map(when => `${when.cond}: ${when.params.join(', ')}`).join('<br><br>')}
+      </div>
     </div>
     <div class="rhs">
       <h4>Then</h4>
-      <div class="contents">${trigger.then[0].action}: ${trigger.then[0].params.join(', ')}</div>
+      <div class="contents">
+        ${trigger.then.map(then => `${then.action}: ${then.params.join(', ')}`).join('<br><br>')}
+      </div>
     </div>
   </div>`;
   let node = createNode(html);

@@ -77,11 +77,23 @@ function parsePreconditionStatement(thingSet, rest) {
   const thing = getOrCreate(thingSet, id);
   thing.type = 'trigger'; // in case this isn't set yet
   thing.when = thing.when || [];
+  let condType = id === 'tick' ? 'Every tick' : null;
+  if (!condType) {
+    condType = {
+      ge: 'Resource greater than value',
+      le: 'Resource less than value',
+      overlaps: 'Entity collides with entity',
+      timer_elapsed: 'Timer done',
+    }[rest[0][0]];
+  }
   let params = [];
   if (id !== 'tick') {
-    const [condType, ...condArgs] = rest[0];
+    const [condHead, ...condArgs] = rest[0];
     for (let arg of condArgs) {
-      if (['entity','resource','scalar','amount'].includes(arg[0])) {
+      if (condHead === 'timer_elapsed') {
+        params.push(arg); // assume there's only one arg: a timer name
+      }
+      else if (['entity','resource','scalar','amount'].includes(arg[0])) {
         params.push(arg[1]);
       }
       else if (arg[0] === 'property') {
@@ -90,21 +102,26 @@ function parsePreconditionStatement(thingSet, rest) {
         params.push(targetID + '.' + propName);
       }
       else if (arg[0] === 'button') {
-        // assume this will always be button(mouse,pressed)?
+        // assume this will always be button(mouse,pressed|held)?
         // if so, we can assume this means we're inside a control_event precondition,
         // and that this is the only argument for that precondition
         // (and therefore that none of the arguments actually change the behavior?)
+        if (arg[1] !== 'mouse' || !(['pressed','held'].includes(arg[2]))) console.warn('invalid button precond arg?', arg);
+        condType = arg[2] === 'pressed' ? 'Mouse is clicked' : 'Mouse is held';
         params = [];
       }
       else if (arg[0] === 'click') {
         // assume this is always click(entity(eid))?
         // if so, we can assume this means we're inside a control_event precondition,
         // and that the entity being clicked is the only argument
-        params = arg[1][1];
+        if (arg[1][0] !== 'entity') console.warn('invalid click precond arg?', arg);
+        condType = 'Entity is clicked';
+        params = [arg[1][1]];
       }
       else if (arg === 'true' || arg === 'false') {
         // i've only seen these as superfluous last-args to overlaps(E1,E2,BOOL).
         // always true, never false under current generation constraints?
+        if (condHead !== 'overlaps' || arg !== 'true') console.warn('invalid bool precond arg?', arg);
         params.push(arg);
       }
       else {
@@ -113,8 +130,7 @@ function parsePreconditionStatement(thingSet, rest) {
       }
     }
   }
-  // TODO properly parse out individual condTypes, instead of just forcing them into a common structure like this
-  thing.when.push({cond: 'Human-readable cond name', params});
+  thing.when.push({cond: condType || 'COND', params});
 }
 
 function parseResultStatement(thingSet, rest) {
@@ -122,13 +138,40 @@ function parseResultStatement(thingSet, rest) {
   const id = rest[0] === 'tick' ? 'tick' : rest[0][1];
   const thing = getOrCreate(thingSet, id);
   thing.type = 'trigger'; // in case this isn't set yet
-  const [resultType, ...resultArgs] = rest[1];
+  const [resultHead, ...resultArgs] = rest[1];
+  let resultType = {
+    add: 'Spawn entity at',
+    delete: 'Delete entity',
+    increase: 'Increase resource value',
+    increase_over_time: 'Increase resource value',
+    decrease: 'Decrease resource value',
+    decrease_over_time: 'Decrease resource value',
+    moves: 'Move entity in direction',
+    rotate_to: 'Rotate entity by angle',
+    look_at: 'Make entity look at',
+    mode_change: resultArgs[0] === 'game_loss' ? 'Lose game' : 'Win game',
+    apply_restitution: 'Prevent entity overlap',
+  }[resultHead];
   const params = resultArgs.map((arg) => {
-    // TODO
+    if (['entity','resource','scalar','amount'].includes(arg[0])) {
+      return arg[1];
+    }
+    else if (arg[0] === 'property') {
+      const [_, target, propName] = arg;
+      const targetID = target[1]; // assume target[0] is a type specifier, probably 'entity'
+      return targetID + '.' + propName;
+    }
+    else if (arg[0] === 'random_int') {
+      const [_, [__, lower], [___, upper]] = arg;
+      return `random(${lower},${upper})`;
+    }
+    else {
+      return JSON.stringify(arg);
+    }
   });
   // TODO properly parse out individual resultTypes, instead of just forcing them into a common structure like this
   thing.then = thing.then || [];
-  thing.then.push({action: 'Do nothing', params});
+  thing.then.push({action: resultType || 'RESULT', params});
 }
 
 function parseReadingStatement(thingSet, rest) {
