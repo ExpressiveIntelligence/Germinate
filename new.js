@@ -909,8 +909,7 @@ function receiveGameFromServer(gameInfo) {
 
 const socket = new WebSocket('ws://127.0.0.1:3000');
 socket.onopen = function(ev) {
-  console.log(ev);
-  requestGamesFromServer(currentIntent);
+  console.log('opened connection to server!');
 };
 socket.onmessage = function(ev) {
   const data = JSON.parse(ev.data);
