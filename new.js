@@ -27,6 +27,10 @@ function createNode(html) {
   return div.firstChild;
 }
 
+function replaceAll(s1, s2, s3) {
+  return s1.split(s2).join(s3);
+}
+
 /// static data structure setup
 
 const possibleEntities = [
@@ -263,6 +267,10 @@ function addThingToThingSet(thingSet, thing, type) {
   if (type) thing.type = type;
   if (!thing.type) console.error('thing must have type!', thing);
   thingSet[id] = thing;
+}
+
+function getAllThingsOfType(thingSet, type) {
+  return Object.values(thingSet).filter(t => t.type === type);
 }
 
 function hydrateThingSet(storedThingSet) {
@@ -959,17 +967,27 @@ function requestGamesFromServer(intent) {
 }
 
 function postprocessReceivedGame(gameInfo) {
-  gameInfo.asp = gameInfo.asp.replace(/narrative_progress/g, "game_win").replace(/narrative_gating/g, "game_loss");
+  // Get relevant info from the current intent...
+  const intentEntities = getAllThingsOfType(currentIntent, 'entity');
+  const intentResources = getAllThingsOfType(currentIntent, 'resource');
+  // ...including a list of all existing entity and resource names in the intent,
+  // so we don't accidentally reuse an existing name for a new generated entity/resource.
+  const intentNames = intentEntities.concat(intentResources).map(t => t.name);
+  const nameIsFresh = (n => !intentNames.includes(n));
+
+  // Before parsing the received game ASP, replace positive/negative narrative mode changes with game win/loss.
+  gameInfo.asp = replaceAll(gameInfo.asp, "narrative_progress", "game_win");
+  gameInfo.asp = replaceAll(gameInfo.asp, "narrative_gating", "game_loss");
+
+  // Parse the received game ASP and extract the output thingSet.
   let outputThings = parseGameASP(gameInfo.asp).things;
 
   // For each output entity, set its name and icon to match those of the corresponding intent entity.
   // Assume for now that entities appear in the output in the same order they appear in the intent
-  // (for instance, that outputEntities[1] is always meant to be the same entity as intentEntities[1]),
-  // although I don't think this is guaranteed.
-  const intentEntities = Object.values(currentIntent).filter(thing => thing.type === 'entity');
-  const outputEntities = Object.values(outputThings).filter(thing => thing.type === 'entity');
+  // (for instance, that outputEntities[1] is always meant to be the same entity as intentEntities[1]).
+  const outputEntities = getAllThingsOfType(outputThings, 'entity');
   for (let i = 0; i < outputEntities.length; i++) {
-    const intentEntity = intentEntities[i] || randNth(possibleEntities);
+    const intentEntity = intentEntities[i] || randNth(possibleEntities.filter(t => nameIsFresh(t.name)));
     const outputEntity = outputEntities[i];
 
     // The tool UI needs to know what name and emoji icon and to display for each of the output entities.
@@ -980,18 +998,21 @@ function postprocessReceivedGame(gameInfo) {
     // to make them render as the correct emoji icons in the live game.
     gameInfo.asp += `label(entity(${outputEntity.id}),${intentEntity.icon},write).\n`;
 
+    // For some reason we have to do this to make sure the new name and icon properties
+    // are stored in outputThings before we do the JSON find-and-replace below.
+    outputThings[outputEntity.id] = outputEntity;
+
     // Many facets of the tool UI (including relationship and trigger cards) refer to entities by name,
     // so we do a brute-force global find-and-replace of output entity IDs with intent entity names
     // in the stringified JSON of the output thingSet to make sure we don't miss any required replacements.
     // FIXME This is awful.
-    outputThings = JSON.parse(JSON.stringify(outputThings).replace(RegExp(outputEntity.id, 'g'), intentEntity.name));
+    outputThings = JSON.parse(replaceAll(JSON.stringify(outputThings), outputEntity.id, intentEntity.name));
   }
 
   // Do the same stuff for resources.
-  const intentResources = Object.values(currentIntent).filter(thing => thing.type === 'resource');
-  const outputResources = Object.values(outputThings).filter(thing => thing.type === 'resource');
+  const outputResources = getAllThingsOfType(outputThings, 'resource');
   for (let i = 0; i < outputResources.length; i++) {
-    const intentResource = intentResources[i] || {name: randNth(possibleResources)};
+    const intentResource = intentResources[i] || {name: randNth(possibleResources.filter(nameIsFresh))};
     const outputResource = outputResources[i];
 
     // The tool UI needs to know what name and emoji icon and to display for each of the output entities.
@@ -1001,11 +1022,15 @@ function postprocessReceivedGame(gameInfo) {
     // to make them render with the correct name in the live game.
     gameInfo.asp += `label(resource(${outputResource.id}),${intentResource.name},write).\n`;
 
+    // For some reason we have to do this to make sure the new name and icon properties
+    // are stored in outputThings before we do the JSON find-and-replace below.
+    outputThings[outputResource.id] = outputResource;
+
     // Many facets of the tool UI (including relationship and trigger cards) refer to resources by name,
     // so we do a brute-force global find-and-replace of output resource IDs with intent resource names
     // in the stringified JSON of the output thingSet to make sure we don't miss any required replacements.
     // FIXME This is awful.
-    outputThings = JSON.parse(JSON.stringify(outputThings).replace(RegExp(outputResource.id, 'g'), intentResource.name));
+    outputThings = JSON.parse(replaceAll(JSON.stringify(outputThings), outputResource.id, intentResource.name));
   }
 
   gameInfo.rules = outputThings;
