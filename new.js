@@ -910,6 +910,11 @@ generateGames.onclick = function() {
     trigger.then[0].action = triggerActions[thenSelect.value].desc;
     trigger.then[0].params = [...thenParamInputs].map(input => input.value);
   }
+  // put the game navigator into the loading state
+  gameNavigator.style.display = 'none';
+  gameNavigatorEmptyState.style.display = 'none';
+  gameNavigatorLoadingState.style.display = 'block';
+  gameNavigatorErrorState.style.display = 'none';
   // make the request to the server
   currentGameIndex = 0;
   requestGamesFromServer(currentIntent);
@@ -1003,6 +1008,8 @@ function receiveGameFromServer(gameInfo) {
     // (only required for the first batch)
     gameNavigator.style.display = 'block';
     gameNavigatorEmptyState.style.display = 'none';
+    gameNavigatorLoadingState.style.display = 'none';
+    gameNavigatorErrorState.style.display = 'none';
   }
   const [asp, rulesHTML] = gameInfo.game.split('==========');
   gameInfo.asp = asp;
@@ -1025,6 +1032,10 @@ socket.onmessage = function(ev) {
   if (data.type === 'error') {
     // TODO handle error
     console.warn("server couldn't generate games for intent!", data);
+    gameNavigator.style.display = 'none';
+    gameNavigatorEmptyState.style.display = 'none';
+    gameNavigatorLoadingState.style.display = 'none';
+    gameNavigatorErrorState.style.display = 'block';
     return;
   }
   else {

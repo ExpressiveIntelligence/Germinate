@@ -114,6 +114,17 @@ reading(goal(reduce),resource(r_1_XX_)).</textarea>
           Once you do that, I'm sure some games will appear.
         </div>
       </div>
+      <div class="game-navigator-loading-state" id="gameNavigatorLoadingState">
+        <div class="empty-state-message">
+          Generating some games...
+        </div>
+      </div>
+      <div class="game-navigator-error-state" id="gameNavigatorErrorState">
+        <div class="error-state-message">
+          Couldn't generate any games for the current intent!<br><br>
+          Try changing the intent to eliminate contradictory requirements.
+        </div>
+      </div>
       <div class="game-navigator" id="gameNavigator">
         <div class="game-navigator-topbar">
           <input class="gametitle" type="text" value="A Game about Depression">

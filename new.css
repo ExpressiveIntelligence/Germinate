@@ -107,6 +107,32 @@ section.code {
   text-align: center;
   width: 75%;
 }
+/* game navigator error state */
+.game-navigator-error-state {
+  background: white;
+  display: none; /* display enabled by code later on */
+  padding: 0;
+  padding-left: 0;
+  padding-right: 2rem;
+  width: 70%;
+}
+.error-state-message {
+  color: orangered;
+  font-size: 1.5rem;
+  margin: 0 auto;
+  padding-top: 30vh;
+  text-align: center;
+  width: 75%;
+}
+/* game navigator loading state */
+.game-navigator-loading-state {
+  background: white;
+  display: none; /* display enabled by code later on */
+  padding: 0;
+  padding-left: 0;
+  padding-right: 2rem;
+  width: 70%;
+} /* (no specialized .loading-state-message for now, just reuse .empty-state-message) */
 /* game navigator styles */
 .game-navigator {
   background: white;
