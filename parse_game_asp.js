@@ -19,7 +19,8 @@ function parseGameASP(asp) {
       // tag corresponding entity as many or singular
       const id = rest[0][1];
       const thing = getOrCreate(thingSet, id);
-      thing.tags.push({family: 'singular', value: 'singular', isNegated: head === 'many'});
+      const value = {'singular': 'just one', 'many': 'several'}[head];
+      thing.tags.push({family: 'quantity', value});
     }
     else if (head === 'initialize') {
       parseInitializeStatement(thingSet, rest);

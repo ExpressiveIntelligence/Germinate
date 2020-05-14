@@ -69,47 +69,21 @@ function generateASPForEntity(entity) {
   const thingASPHandle = makeThingASPHandle(entity);
   const thingName = entity.name === '' ? '$$RANDOM_NAME$$' : entity.name;
   let asp = `% ENTITY: ${thingName} (${entity.id})\n`;
-  // label is actually just emoji icon for now
-  // if icon is the question mark, swap it for a random one from the current theme
-  const icon = entity.icon === '❓' ? randNth(getCurrentTheme().icons) : entity.icon;
-  //asp += `label(${thingASPHandle},${icon},write).\n`; // emoji labels seem to cause problems – disable for now
   // set its valence (good, bad, whatever)
-  let valenceTags = entity.tags.filter(t => t.family === 'playerAttitude');
+  const valenceTags = entity.tags.filter(t => t.family === 'playerAttitude');
   for (let valenceTag of valenceTags) {
     asp += generateASPForValenceTag(thingASPHandle, valenceTag);
   }
-  // set its controls if any
-  const playerControlsTag = entity.tags.find(t => t.family === 'playerControls');
-  if (playerControlsTag) {
-    if (playerControlsTag.isNegated) {
-      asp += `:- player_controls(${thingASPHandle}).\n`;
-    } else {
-      asp += `:- computer_controls(${thingASPHandle}).\n`;
-    }
+  // set its controller (player, computer)
+  const controlledByTags = entity.tags.filter(t => t.family === 'controlledBy');
+  for (let tag of controlledByTags) {
+    asp += `:- ${tag.isNegated ? '' : 'not'} ${tag.value}_controls(${thingASPHandle}).\n`;
   }
-  /*
-  // set its indirect controls if any
-  const indirectControlsTags = entity.tags.filter(t => t.family === 'indirectControls');
-  for (let tag of indirectControlsTags) {
-    asp += (tag.isNegated ? ':- ' : ':- not ') + `controlScheme(${thingASPHandle},${tag.value}).\n`;
-  }
-  */
-  // set its count (like whether it's singular or multiple)
-  const countTagIfAny = entity.tags.find(t => t.family === 'singular');
-  if (!countTagIfAny) {
-    // it can be multiple _or_ singular!
-    // do we even have to do anything here?
-    // let's go ahead and require a pool i guess (this might make it always-multiple tho?)
-    asp += `:- not pool(${thingASPHandle},_,_,_).\n\n`;
-  }
-  else if (countTagIfAny.isNegated) {
-    // it's definitely multiple
-    asp += `:- not many(${thingASPHandle}).\n`;
-    asp += `:- not pool(${thingASPHandle},_,_,_).\n`;
-  }
-  else {
-    // it's definitely singular
-    asp += `:- not singular(${thingASPHandle}).\n`;
+  // set its quantity (just one => singular, several => many)
+  const quantityTags = entity.tags.filter(t => t.family === 'quantity');
+  for (let tag of quantityTags) {
+    const predicate = {'just one': 'singular', 'several': 'many'}[tag.value];
+    asp += `:- ${tag.isNegated ? '' : 'not'} ${predicate}(${thingASPHandle}).\n`;
   }
   return asp + '\n';
 }

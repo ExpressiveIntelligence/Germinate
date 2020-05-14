@@ -126,16 +126,16 @@ let tagFamilies = {
     appliesTo: ['entity', 'resource', 'outcome']
   },
   */
-  singular: {
-    name: 'singular',
-    text: 'It is',
-    tags: ['singular'],
+  quantity: {
+    name: 'quantity',
+    text: 'Quantity',
+    tags: ['just one', 'several'],
     appliesTo: ['entity']
   },
-  playerControls: {
-    name: 'playerControls',
+  controlledBy: {
+    name: 'controlledBy',
     text: 'Controlled by',
-    tags: ['player'],
+    tags: ['player', 'computer'],
     appliesTo: ['entity'],
   },
   /*
