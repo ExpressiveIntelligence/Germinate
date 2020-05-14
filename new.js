@@ -241,7 +241,7 @@ function rerenderTags(thingNode) {
     let tagHtml = `<span class="tag${tag.isNegated ? ' negated' : ''}">${upcaseFirst(tagText.trim())}</span>`;
     let tagNode = createNode(tagHtml);
     tagNode.onclick = function(ev) {
-      if (negateModeActive || ev.shiftKey) {
+      if (ev.shiftKey) {
         negateTag(thing, tag);
       } else {
         cycleTag(thing, tag);
@@ -517,7 +517,7 @@ function createRelationshipNode(relationship) {
   }
   wireUpOnclickHandlers(node);
   node.onclick = function(ev) {
-    if (negateModeActive || ev.shiftKey) {
+    if (ev.shiftKey) {
       if (node.classList.contains('negated')) {
         node.classList.remove('negated');
       } else {
@@ -588,7 +588,7 @@ function createTagEditorNode(thingType, thingNode) {
       familyNode.appendChild(tagNode);
       // set up onclick handler for this individual editor tag
       tagNode.onclick = function(ev) {
-        if ((negateModeActive || ev.shiftKey) && tagState !== 'negated') {
+        if (ev.shiftKey && tagState !== 'negated') {
           addTag(thing, {family: familyName, value: tag, isNegated: true});
         } else if (tagState === 'active') {
           removeTag(thing, {family: familyName, value: tag});
@@ -679,7 +679,7 @@ function createTriggerNode(trigger) {
     thenParamFields[i].value = trigger.then[0].params[i];
   }
   node.onclick = function(ev) {
-    if (negateModeActive || ev.shiftKey) {
+    if (ev.shiftKey) {
       if (node.classList.contains('negated')) {
         node.classList.remove('negated');
       } else {
@@ -816,18 +816,6 @@ newTriggerButton.onclick = function() {
   intentTriggersList.lastElementChild.insertAdjacentElement('beforebegin', node);
 }
 
-// add click handler to negate mode button in intent UI
-let negateModeActive = false;
-toggleNegateMode.onclick = function() {
-  negateModeActive = !negateModeActive;
-  toggleNegateMode.innerText = `${negateModeActive ? 'Disable' : 'Enable'} negate mode`;
-  if (negateModeActive) {
-    toggleNegateMode.classList.remove('inactive');
-  } else {
-    toggleNegateMode.classList.add('inactive');
-  }
-}
-
 /// code viewing stuff
 
 viewCodeIntent.onclick = function() {
@@ -835,6 +823,7 @@ viewCodeIntent.onclick = function() {
     intentNode.classList.remove('viewing-code');
     viewCodeIntent.innerText = 'View code';
   } else {
+    codeForCurrentIntent.value = generateASPForIntent(currentIntent);
     intentNode.classList.add('viewing-code');
     viewCodeIntent.innerText = 'View cards';
   }
