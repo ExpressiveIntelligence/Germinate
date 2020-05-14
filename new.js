@@ -380,7 +380,6 @@ function randomizeThing(thingNode) {
 function wireUpOnclickHandlers(thingNode) {
   for (let nameField of thingNode.querySelectorAll('.thing-name')) {
     nameField.oninput = function (ev) {
-      console.log(ev);
       currentIntent[thingNode.id].name = ev.target.value;
     };
   }
@@ -1044,7 +1043,6 @@ socket.onopen = function(ev) {
 socket.onmessage = function(ev) {
   const data = JSON.parse(ev.data);
   if (data.type === 'error') {
-    // TODO handle error
     console.warn("server couldn't generate games for intent!", data);
     gameNavigator.style.display = 'none';
     gameNavigatorEmptyState.style.display = 'none';
@@ -1053,7 +1051,7 @@ socket.onmessage = function(ev) {
     return;
   }
   else {
-    console.log('data:', data);
+    console.log('generated game:', data);
     receiveGameFromServer(data);
   }
 };
