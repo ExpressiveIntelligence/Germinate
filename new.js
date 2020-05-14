@@ -413,7 +413,8 @@ function wireUpStaticOnclickHandlers(thingNode) {
   for (let importButton of thingNode.querySelectorAll('.import')) {
     importButton.onclick = function() {
       let thingID = thingNode.id.replace('static_', '');
-      let thing = currentGameRules[thingID];
+      let thing = clone(currentGameRules[thingID]);
+      thing.id = genID();
       addThingToThingSet(currentIntent, thing);
       let [uiBuilderFunction, targetList] = {
         entity: [createEntityNode, intentEntitiesList],
