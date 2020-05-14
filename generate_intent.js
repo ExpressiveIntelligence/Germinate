@@ -286,14 +286,14 @@ function generateASPForIntent(intent) {
   // figure out how many entity slots we'll need, set min and max entities
   const entities = Object.values(intent).filter(t => t.type === 'entity');
   //const minEntitySlots = entities.filter(isThingRequired).length;
-  const maxEntitySlots = Math.max(entities.length, 4);
+  const maxEntitySlots = Math.max(entities.length, maxEntitiesInput.value);
   asp += `#const min_entities = 1.
 #const max_entities = ${maxEntitySlots}.\n`;
 
   // figure out how many resource slots we'll need, set min and max resources
   const resources = Object.values(intent).filter(t => t.type === 'resource');
   //const minResourceSlots = resources.filter(isThingRequired).length;
-  const maxResourceSlots = Math.max(resources.length, 3);
+  const maxResourceSlots = Math.max(resources.length, maxResourcesInput.value);
   asp += `#const min_resources = 1.
 #const max_resources = ${maxResourceSlots}.\n`;
 
@@ -311,7 +311,7 @@ function generateASPForIntent(intent) {
 
   // set min and max outcomes, assuming these are always constants
   asp += `#const min_outcomes = 2.
-#const max_outcomes = 8.
+#const max_outcomes = ${maxTriggersInput.value}.
 #const min_end_outcomes = 0.
 #const max_end_outcomes = 2.\n`;
 

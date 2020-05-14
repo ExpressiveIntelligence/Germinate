@@ -21,6 +21,26 @@
           <h3>Code</h3>
           <textarea readonly id="codeForCurrentIntent"></textarea>
         </section>
+        <section class="game">
+          <h3>Game</h3>
+          <div id="intentGameDetails">
+            <p>
+              Allow up to
+              <input id="maxEntitiesInput" type="number" value="4" min="0">
+              entities
+            </p>
+            <p>
+              Allow up to
+              <input id="maxResourcesInput" type="number" value="3" min="0">
+              resources
+            </p>
+            <p>
+              Allow up to
+              <input id="maxTriggersInput" type="number" value="8" min="0">
+              triggers
+            </p>
+          </div>
+        </section>
         <section class="entities">
           <h3>Entities</h3>
           <div id="intentEntitiesList" class="things-list">
