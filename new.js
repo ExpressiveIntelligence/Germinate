@@ -1022,6 +1022,13 @@ socket.onopen = function(ev) {
 };
 socket.onmessage = function(ev) {
   const data = JSON.parse(ev.data);
-  console.log('data:', data);
-  receiveGameFromServer(data);
+  if (data.type === 'error') {
+    // TODO handle error
+    console.warn("server couldn't generate games for intent!", data);
+    return;
+  }
+  else {
+    console.log('data:', data);
+    receiveGameFromServer(data);
+  }
 };
