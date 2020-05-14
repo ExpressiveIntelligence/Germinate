@@ -285,16 +285,16 @@ function generateASPForIntent(intent) {
 
   // figure out how many entity slots we'll need, set min and max entities
   const entities = Object.values(intent).filter(t => t.type === 'entity');
-  const minEntitySlots = entities.filter(isThingRequired).length;
-  const maxEntitySlots = entities.length;
-  asp += `#const min_entities = ${minEntitySlots}.
+  //const minEntitySlots = entities.filter(isThingRequired).length;
+  const maxEntitySlots = Math.max(entities.length, 4);
+  asp += `#const min_entities = 1.
 #const max_entities = ${maxEntitySlots}.\n`;
 
   // figure out how many resource slots we'll need, set min and max resources
   const resources = Object.values(intent).filter(t => t.type === 'resource');
-  const minResourceSlots = resources.filter(isThingRequired).length;
-  const maxResourceSlots = resources.length;
-  asp += `#const min_resources = ${minResourceSlots}.
+  //const minResourceSlots = resources.filter(isThingRequired).length;
+  const maxResourceSlots = Math.max(resources.length, 3);
+  asp += `#const min_resources = 1.
 #const max_resources = ${maxResourceSlots}.\n`;
 
   // assign aspID properties to all the entities and resources
@@ -311,9 +311,9 @@ function generateASPForIntent(intent) {
 
   // set min and max outcomes, assuming these are always constants
   asp += `#const min_outcomes = 2.
-#const max_outcomes = 10.
+#const max_outcomes = 8.
 #const min_end_outcomes = 0.
-#const max_end_outcomes = 1.\n`;
+#const max_end_outcomes = 2.\n`;
 
   // set the remaining utility constants
   asp += `#const max_resource_change_per = 2.

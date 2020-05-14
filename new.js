@@ -29,19 +29,46 @@ function createNode(html) {
 
 /// static data structure setup
 
-let themes = {
-  depression: {
-    entityNames: ['Friend', 'Family', 'Insecurity', 'Good thought', 'Bad thought', 'Brain'],
-    resourceNames: ['Confidence', 'Happiness', 'Depression', 'Friends', 'Insecurity', 'Brain', 'Anxiety'],
-    icons: ['💁', '😢', '😞', '❤️', '🔥', '💧', '😭', '😿', '😬', '🧠', '✨']
-  }
-};
+const possibleEntities = [
+  {name: 'Brain', icon: '🧠'},
+  {name: 'Love', icon: '❤️'},
+  {name: 'Friend', icon: '💁'},
+  {name: 'Stranger', icon: '😬'},
+  {name: 'Bad thought', icon: '😢'},
+  {name: 'Good thought', icon: '✨'},
+  {name: 'Fire', icon: '🔥'},
+  {name: 'Water', icon: '💧'},
+  {name: 'Tree', icon: '🌳'},
+  {name: 'Cat', icon: '🐱'},
+  {name: 'Dog', icon: '🐶'},
+  {name: 'Cake', icon: '🍰'},
+  {name: 'Gift', icon: '🎁'},
+  {name: 'Bear', icon: '🐻'},
+  {name: 'Duck', icon: '🦆'},
+  {name: 'Spider', icon: '🕷️'},
+  {name: 'Flower', icon: '🌺'},
+  {name: 'Star', icon: '⭐'},
+  {name: 'Anger', icon: '😡'},
+  {name: 'Music', icon: '🎵'},
+  {name: 'Disappointment', icon: '💔'},
+  {name: 'Success', icon: '💯'},
+  {name: 'Food', icon: '🍲'},
+  {name: 'Snack', icon: '🍪'},
+  {name: 'Coffee', icon: '☕'},
+  {name: 'Book', icon: '📚'},
+  {name: 'Microbe', icon: '🦠'},
+  {name: 'Danger', icon: '💣'},
+  {name: 'Ghost', icon: '👻'},
+  {name: 'Bot', icon: '🤖'},
+];
 
-let defaultTheme = {
-  entityNames: ['Person', 'Car', 'Tree', 'Building', 'Fire', 'Leopard', 'Computer', 'Art'],
-  resourceNames: ['Confusion', 'Understanding', 'Satisfaction', 'Fun', 'Enmity', 'Delight', 'Failure'],
-  icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄', '🎂', '🍰', '🎈', '🎉', '🎁']
-};
+const possibleResources = [
+  'Confidence', 'Happiness', 'Depression', 'Friends', 'Insecurity', 'Brain', 'Anxiety',
+  'Confusion', 'Understanding', 'Satisfaction', 'Fun', 'Enmity', 'Delight', 'Failure',
+  'Money', 'Cash', 'Wisdom', 'Caffeine', 'Attention', 'Conflict', 'Tension', 'Strength',
+  'Weakness', 'Pets', 'Patience', 'Dopamine', 'Hunger', 'Thirst', 'Luck', 'Calm',
+  'Sickness', 'Temperature', 'Destruction', 'Peace', 'Joy', 'Sadness', 'Desperation',
+];
 
 let relationshipTypes = [
   'is related to',
@@ -91,12 +118,14 @@ let triggerActions = {
 };
 
 let tagFamilies = {
+  /*
   optional: {
     name: 'optional',
     text: 'It is',
     tags: ['optional'],
     appliesTo: ['entity', 'resource', 'outcome']
   },
+  */
   singular: {
     name: 'singular',
     text: 'It is',
@@ -276,7 +305,7 @@ function randomizeTriggerParam(paramName) {
     return randNth([randNth(['Up', 'Down', 'Left', 'Right', 'Space', 'Shift', 'Enter']),
                     randNth('ABDCEFGHIJKLMNOPQRSTUVWXYZ')]);
   } else if (paramName === 'sprite') {
-    return randNth(getCurrentTheme().icons);
+    return randNth(possibleEntities.map(e => e.icon));
   } else if (paramName === 'value') {
     return randInt(0, 11);
   } else if (paramName === 'amount') {
@@ -306,19 +335,15 @@ function randomizeTriggerParam(paramName) {
 function randomizeThing(thingNode) {
   let thing = currentIntent[thingNode.id];
   let thingType = thing.type;
-  let theme = getCurrentTheme();
   if (thingType === 'entity') {
-    // randomize name
-    let newName = randNth(theme.entityNames);
-    thing.name = newName;
-    thingNode.querySelector('.thing-name').value = newName;
-    // randomize icon
-    let newIcon = randNth(theme.icons);
-    thing.icon = newIcon;
-    thingNode.querySelector('.entity-icon').innerText = newIcon;
+    const newSkin = randNth(possibleEntities);
+    thing.name = newSkin.name;
+    thingNode.querySelector('.thing-name').value = newSkin.name;
+    thing.icon = newSkin.icon;
+    thingNode.querySelector('.entity-icon').innerText = newSkin.icon;;
   } else if (thingType === 'resource') {
     // randomize name
-    let newName = randNth(theme.resourceNames);
+    let newName = randNth(possibleResources);
     thing.name = newName;
     thingNode.querySelector('.thing-name').value = newName;
   } else if (thingType === 'relationship') {
@@ -346,10 +371,6 @@ function randomizeThing(thingNode) {
     for (let tagFamily of validTagFamilies) {
       let value = randNth(tagFamily.tags);
       addTag(thing, {value, family: tagFamily.name});
-    }
-    // randomly either add or don't add the 'optional' tag
-    if (Math.random() > 0.5) {
-      addTag(thing, {value: 'optional', family: 'optional'});
     }
     // render new tags
     rerenderTags(thingNode);
@@ -523,8 +544,7 @@ function createEmojiPickerNode(thingNode) {
   let html = `<div class="emoji-picker">
     <div class="close-emoji-picker">X</div>
     <span class="emoji">❓</span>`;
-  let theme = getCurrentTheme();
-  for (let emoji of theme.icons) {
+  for (let emoji of possibleEntities.map(e => e.icon)) {
     html += `<span class="emoji">${emoji}</span>`;
   }
   html += `</div>`;
@@ -763,7 +783,7 @@ newEntityButton.onclick = function() {
     type: 'entity',
     name: "",
     icon: "❓",
-    tags: [{family: 'optional', value: 'optional'}]
+    tags: []
   };
   addThingToThingSet(currentIntent, defaultEntity);
   let node = createEntityNode(defaultEntity);
@@ -773,7 +793,7 @@ newResourceButton.onclick = function() {
   let defaultResource = {
     type: 'resource',
     name: "",
-    tags: [{family: 'optional', value: 'optional'}]
+    tags: []
   };
   addThingToThingSet(currentIntent, defaultResource);
   let node = createResourceNode(defaultResource);
@@ -806,31 +826,6 @@ toggleNegateMode.onclick = function() {
   } else {
     toggleNegateMode.classList.add('inactive');
   }
-}
-
-/// theme picker stuff
-
-function getCurrentTheme() {
-  return themes[currentThemeName] || defaultTheme;
-}
-
-let currentThemeName = themePickerText.value;
-
-changeTheme.onclick = function() {
-  themePicker.classList.add('active');
-}
-
-for (let themeButton of themePicker.querySelectorAll('.pick-theme')) {
-  themeButton.onclick = function() {
-    currentThemeName = themeButton.innerText;
-    themePickerText.value = themeButton.innerText;
-    themePicker.classList.remove('active');
-  }
-}
-
-themePickerContinue.onclick = function() {
-  currentThemeName = themePickerText.value;
-  themePicker.classList.remove('active');
 }
 
 /// code viewing stuff
@@ -956,7 +951,7 @@ function postprocessReceivedGame(gameInfo) {
   const intentEntities = Object.values(currentIntent).filter(thing => thing.type === 'entity');
   const outputEntities = Object.values(outputThings).filter(thing => thing.type === 'entity');
   for (let i = 0; i < outputEntities.length; i++) {
-    const intentEntity = intentEntities[i];
+    const intentEntity = intentEntities[i] || randNth(possibleEntities);
     const outputEntity = outputEntities[i];
 
     // The tool UI needs to know what name and emoji icon and to display for each of the output entities.
@@ -978,7 +973,7 @@ function postprocessReceivedGame(gameInfo) {
   const intentResources = Object.values(currentIntent).filter(thing => thing.type === 'resource');
   const outputResources = Object.values(outputThings).filter(thing => thing.type === 'resource');
   for (let i = 0; i < outputResources.length; i++) {
-    const intentResource = intentResources[i];
+    const intentResource = intentResources[i] || {name: randNth(possibleResources)};
     const outputResource = outputResources[i];
 
     // The tool UI needs to know what name and emoji icon and to display for each of the output entities.
