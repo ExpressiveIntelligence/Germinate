@@ -19,7 +19,7 @@ function parseGameASP(asp) {
       // tag corresponding entity as many or singular
       const id = rest[0][1];
       const thing = getOrCreate(thingSet, id);
-      // TODO actually apply the tag
+      thing.tags.push({family: 'singular', value: 'singular', isNegated: head === 'many'});
     }
     else if (head === 'initialize') {
       parseInitializeStatement(thingSet, rest);
@@ -61,7 +61,6 @@ function parseInitializeStatement(thingSet, rest) {
     else if (intValue > 4) { valueRange = 'middling'; }
     else if (intValue > 0) { valueRange = 'low'; }
     else { valueRange = 'empty'; }
-    thing.tags = thing.tags || [];
     const tag = thing.tags.find(t => t.family === 'initialLevel');
     if (tag) {
       tag.value = valueRange;
@@ -83,7 +82,7 @@ function parsePreconditionStatement(thingSet, rest) {
       ge: 'Resource greater than value',
       le: 'Resource less than value',
       overlaps: 'Entity collides with entity',
-      timer_elapsed: 'Timer done',
+      timer_elapsed: 'Periodically',
     }[rest[0][0]];
   }
   let params = [];
@@ -140,7 +139,7 @@ function parseResultStatement(thingSet, rest) {
   thing.type = 'trigger'; // in case this isn't set yet
   const [resultHead, ...resultArgs] = rest[1];
   let resultType = {
-    add: 'Spawn entity at',
+    add: 'Spawn entity',
     delete: 'Delete entity',
     increase: 'Increase resource value',
     increase_over_time: 'Increase resource value',
@@ -149,7 +148,7 @@ function parseResultStatement(thingSet, rest) {
     moves: 'Move entity in direction',
     rotate_to: 'Rotate entity by angle',
     look_at: 'Make entity look at',
-    mode_change: resultArgs[0] === 'game_loss' ? 'Lose game' : 'Win game',
+    mode_change: ['game_loss','narrative_gating'].includes(resultArgs[0]) ? 'Lose game' : 'Win game',
     apply_restitution: 'Prevent entity overlap',
   }[resultHead];
   const params = resultArgs.map((arg) => {
@@ -165,10 +164,13 @@ function parseResultStatement(thingSet, rest) {
       const [_, [__, lower], [___, upper]] = arg;
       return `random(${lower},${upper})`;
     }
+    else if (arg[0] === 'pool') {
+      return null;
+    }
     else {
       return JSON.stringify(arg);
     }
-  });
+  }).filter(arg => !!arg);
   // TODO properly parse out individual resultTypes, instead of just forcing them into a common structure like this
   thing.then = thing.then || [];
   thing.then.push({action: resultType || 'RESULT', params});
@@ -176,11 +178,12 @@ function parseResultStatement(thingSet, rest) {
 
 function parseReadingStatement(thingSet, rest) {
   const readingType = rest[0];
-  const relations = ['help','hurt','chases','flees','sharing','produces','consumes','costs'];
+  const relations = ['help','hurt','chases','flees','sharing','produces','consumes','costs','tradeoff'];
   // help is just a stub rn
   if (relations.includes(readingType)) {
     // create relationship thing
     const [_, lhsExpr, rhsExpr] = rest[1];
+    if (!rhsExpr) return; // bail out early if this isn't a relational reading after all (as in eg tradeoff(Outcome)?)
     if (readingType === 'produces' && lhsExpr[0] === 'pool') return; // bail out early if this is a 'pool produces entity' reading
     const lhsID = lhsExpr[1];
     const rhsIsProp = rhsExpr[0] === 'property';
@@ -202,7 +205,6 @@ function parseReadingStatement(thingSet, rest) {
     if (thingInfo[0] === 'entity' || thingInfo[0] === 'resource') {
       // for good/bad tags applying to entities/resources, apply them
       const thing = getOrCreate(thingSet, thingInfo[1]);
-      thing.tags = thing.tags || [];
       const tag = thing.tags.find(t => t.family === 'playerAttitude');
       if (tag) {
         tag.value = 'complicated';
@@ -220,7 +222,7 @@ function parseReadingStatement(thingSet, rest) {
 function getOrCreate(thingSet, id) {
   let thing = thingSet[id];
   if (!thing) {
-    thing = {id};
+    thing = {id, tags: []};
     thingSet[id] = thing;
   }
   return thing;

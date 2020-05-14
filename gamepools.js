@@ -28,8 +28,8 @@ let exampleIntent = {
   ],
   triggers: [
     {
-      when: [{cond: 'Every tick', params: []}],
-      then: [{action: 'Do nothing', params: []}]
+      when: [{cond: 'Something happens', params: []}],
+      then: [{action: 'Do something', params: []}]
     }
   ]
 };

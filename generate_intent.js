@@ -78,7 +78,39 @@ function generateASPForEntity(entity) {
   for (let valenceTag of valenceTags) {
     asp += generateASPForValenceTag(thingASPHandle, valenceTag);
   }
-  // TODO set its count (like whether it's singular or multiple)
+  // set its controls if any
+  const playerControlsTag = entity.tags.find(t => t.family === 'playerControls');
+  if (playerControlsTag) {
+    if (playerControlsTag.isNegated) {
+      asp += `:- player_controls(${thingASPHandle}).\n`;
+    } else {
+      asp += `:- computer_controls(${thingASPHandle}).\n`;
+    }
+  }
+  /*
+  // set its indirect controls if any
+  const indirectControlsTags = entity.tags.filter(t => t.family === 'indirectControls');
+  for (let tag of indirectControlsTags) {
+    asp += (tag.isNegated ? ':- ' : ':- not ') + `controlScheme(${thingASPHandle},${tag.value}).\n`;
+  }
+  */
+  // set its count (like whether it's singular or multiple)
+  const countTagIfAny = entity.tags.find(t => t.family === 'singular');
+  if (!countTagIfAny) {
+    // it can be multiple _or_ singular!
+    // do we even have to do anything here?
+    // let's go ahead and require a pool i guess (this might make it always-multiple tho?)
+    asp += `:- not pool(${thingASPHandle},_,_,_).\n\n`;
+  }
+  else if (countTagIfAny.isNegated) {
+    // it's definitely multiple
+    asp += `:- not many(${thingASPHandle}).\n`;
+    asp += `:- not pool(${thingASPHandle},_,_,_).\n`;
+  }
+  else {
+    // it's definitely singular
+    asp += `:- not singular(${thingASPHandle}).\n`;
+  }
   return asp + '\n';
 }
 
@@ -133,17 +165,110 @@ function generateASPForRelationship(intent, relationship) {
   const rhsASPHandle = rhsThing ? makeThingASPHandle(rhsThing) : '_';
   if (reltype === 'consumes') {
     asp += `:- not reading(consumes,relation(${lhsASPHandle},${rhsASPHandle})).`;
-  } else if (reltype === 'produces') {
+  }
+  else if (reltype === 'produces') {
     asp += `:- not reading(produces,relation(${lhsASPHandle},${rhsASPHandle})).`;
-  } else if (reltype === 'collides with') {
+  }
+  else if (reltype === 'tradeoff') {
+    asp += `:- not reading(tradeoff,relation(${lhsASPHandle},${rhsASPHandle})).`;
+  }
+  else if (reltype === 'collides with') {
     asp += `% apply restitution between these entities every frame
 precondition(tick,tick).
 result(tick,apply_restitution(${lhsASPHandle},${rhsASPHandle})).`;
-  } else {
+  }
+  else {
     console.warn(`I ain't never heard of no relationship with reltype: ${reltype} before! \
 What in tarnation are you doin'?`);
   }
   return asp + '\n\n';
+}
+
+function getASPHandle(intent, name, type) {
+  const thing = Object.values(intent).find(t => t.name === name && (!type || t.type === type));
+  if (!thing && name !== '') console.warn(`no such ${type || 'thing'}`, name);
+  return thing ? makeThingASPHandle(thing) : '_';
+}
+
+function generateASPForTrigger(intent, trigger) {
+  const triggerASPHandle = 'trigger_' + trigger.id;
+  const aspClauses = [];
+  for (let when of trigger.when) {
+    if (when.cond === 'Something happens') {
+      // don't need to push anything
+    }
+    else if (when.cond === 'Every frame') {
+      aspClauses.push('precondition(tick,O)');
+    }
+    else if (when.cond === 'Resource greater than value') {
+      const aspHandle = getASPHandle(intent, when.params[0], 'resource');
+      aspClauses.push(`precondition(compare(ge,${aspHandle}),O)`);
+    }
+    else if (when.cond === 'Resource less than value') {
+      const aspHandle = getASPHandle(intent, when.params[0], 'resource');
+      aspClauses.push(`precondition(compare(le,${aspHandle}),O)`);
+    }
+    else if (when.cond === 'Entity collides with entity') {
+      const aspHandle1 = getASPHandle(intent, when.params[0], 'entity');
+      const aspHandle2 = getASPHandle(intent, when.params[1], 'entity');
+      aspClauses.push(`precondition(overlaps(${aspHandle1},${aspHandle2},true),O)`);
+    }
+    else if (when.cond === 'Entity is clicked') {
+      const aspHandle = getASPHandle(intent, when.params[0], 'entity');
+      aspClauses.push(`precondition(control_event(click(${aspHandle})),O)`);
+    }
+    else if (when.cond === 'Mouse is clicked') {
+      aspClauses.push(`precondition(control_event(button(mouse,pressed)),O)`);
+    }
+    else if (when.cond === 'Mouse is held') {
+      aspClauses.push(`precondition(control_event(button(mouse,held)),O)`);
+    }/*
+    else if (when.cond === 'Keyboard key is pressed') {
+      aspClauses.push(`precondition(${},O)`);
+    }
+    else if (when.cond === 'Keyboard key is held') {
+      aspClauses.push(`precondition(${},O)`);
+    }*/
+    else if (when.cond === 'Periodically') {
+      // TODO allow user to specify which timer?
+      aspClauses.push(`precondition(timer_elapsed(_),O)`);
+    }
+    else {
+      console.warn('unsupported cond type', when);
+    }
+  }
+  for (let then of trigger.then) {
+    if (then.action === 'Do something') {
+      // don't need to push anything
+    }/*
+    else if (then.action === 'Set resource value') {
+
+    }*/
+    else if (then.action === 'Increase resource value') {
+      const aspHandle = getASPHandle(intent, then.params[0], 'resource');
+      aspClauses.push(`result(O,modify(increase,${aspHandle}))`);
+    }
+    else if (then.action === 'Decrease resource value') {
+      const aspHandle = getASPHandle(intent, then.params[0], 'resource');
+      aspClauses.push(`result(O,modify(decrease,${aspHandle}))`);
+    }
+    else if (then.action === 'Spawn entity') {
+      const aspHandle = getASPHandle(intent, then.params[0], 'entity');
+      aspClauses.push(`result(O,add(${aspHandle},_,_))`);
+    }
+    else if (then.action === 'Delete entity') {
+      const aspHandle = getASPHandle(intent, then.params[0], 'entity');
+      aspClauses.push(`result(O,delete(${aspHandle}))`);
+    }
+    else {
+      console.warn('unsupported action type', then);
+    }
+  }
+  if (aspClauses.length === 0) return ''; // bail out early if there's no supported clauses in this trigger
+  let asp = triggerASPHandle + ' :-\n';
+  asp += aspClauses.map(clause => '  ' + clause).join(',\n') + '.\n';
+  asp += `:- ${trigger.isNegated ? '' : 'not '}${triggerASPHandle}.\n\n`;
+  return asp;
 }
 
 function isThingRequired(thing) {
@@ -194,11 +319,6 @@ function generateASPForIntent(intent) {
   asp += `#const max_resource_change_per = 2.
 #const max_conditions_per = 2.\n\n`;
 
-  // add an entity pool expression for the first entity type.
-  // afaict we need at least one of these or else Gemini won't generate any entities?
-  // i honestly don't know why this works, but it's in dinner_intent.lp sooooo...
-  asp += `:- 0 {pool(${makeThingASPHandle(entities[0])},_,_,_)} 0.\n\n`
-
   // intent has: entities, resources, relationships, triggers
   for (let entity of entities) {
     asp += generateASPForEntity(entity);
@@ -209,7 +329,9 @@ function generateASPForIntent(intent) {
   for (let relationship of Object.values(intent).filter(t => t.type === 'relationship')) {
     asp += generateASPForRelationship(intent, relationship);
   }
-  // TODO generate intent code for triggers
+  for (let trigger of Object.values(intent).filter(t => t.type === 'trigger')) {
+    asp += generateASPForTrigger(intent, trigger);
+  }
 
   return asp.trim();
 }

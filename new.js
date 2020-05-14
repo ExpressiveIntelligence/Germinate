@@ -43,26 +43,34 @@ let defaultTheme = {
   icons: ['😶', '🔥', '🕶️', '🤖', '🐙', '🌈', '🦄', '🎂', '🍰', '🎈', '🎉', '🎁']
 };
 
-let relationshipTypes = ['is related to', 'consumes', 'produces', 'defeats', 'avoids', 'collides with'];
+let relationshipTypes = [
+  'is related to',
+  'consumes',
+  'produces',
+  'collides with',
+  'costs',
+  'tradeoff'
+];
 
 let triggerConditions = {
+  something: {desc: 'Something happens', params: []},
   tick: {desc: 'Every frame', params: []},
-  rvalGte: {desc: 'Resource greater than value', params: ['resource', 'value']},
-  rvalLte: {desc: 'Resource less than value', params: ['resource', 'value']},
+  rvalGte: {desc: 'Resource greater than value', params: ['resource']},
+  rvalLte: {desc: 'Resource less than value', params: ['resource']},
   collide: {desc: 'Entity collides with entity', params: ['entity #1', 'entity #2']},
   entClick: {desc: 'Entity is clicked', params: ['entity']},
   mouseClick: {desc: 'Mouse is clicked', params: []},
   mouseHold: {desc: 'Mouse is held', params: []},
-  keyPress: {desc: 'Keyboard key is pressed', params: ['key']},
-  keyHold: {desc: 'Keyboard key is held', params: ['key']},
-  timerDone: {desc: 'Timer finishes', params: ['timer']}
+  //keyPress: {desc: 'Keyboard key is pressed', params: ['key']},
+  //keyHold: {desc: 'Keyboard key is held', params: ['key']},
+  timerDone: {desc: 'Periodically', params: []}
 };
 
 let triggerActions = {
-  nothing: {desc: 'Do nothing', params: []},
-  setRval: {desc: 'Set resource value', params: ['resource', 'value']},
-  incRval: {desc: 'Increase resource value', params: ['resource', 'amount']},
-  decRval: {desc: 'Decrease resource value', params: ['resource', 'amount']},
+  something: {desc: 'Do something', params: []},
+  setRval: {desc: 'Set resource value', params: ['resource']},
+  incRval: {desc: 'Increase resource value', params: ['resource']},
+  decRval: {desc: 'Decrease resource value', params: ['resource']},
   teleport: {desc: 'Teleport entity to', params: ['entity', 'target']},
   moveEntToward: {desc: 'Move entity toward', params: ['entity', 'target']},
   moveEntAway: {desc: 'Move entity away from', params: ['entity', 'target']},
@@ -73,10 +81,10 @@ let triggerActions = {
   setEntSprite: {desc: 'Set entity sprite', params: ['entity', 'sprite']},
   setEntColor: {desc: 'Set entity color', params: ['entity', 'color']},
   setEntSize: {desc: 'Set entity size', params: ['entity', 'size']},
-  spawnEnt: {desc: 'Spawn entity at', params: ['entity', 'target']},
+  spawnEnt: {desc: 'Spawn entity', params: ['entity']},
   deleteEnt: {desc: 'Delete entity', params: ['entity']},
-  win: {desc: 'Win game', params: ['message']},
-  lose: {desc: 'Lose game', params: ['message']},
+  win: {desc: 'Win game', params: []},
+  lose: {desc: 'Lose game', params: []},
   timerStart: {desc: 'Start timer', params: ['timer']},
   timerPause: {desc: 'Pause timer', params: ['timer']},
   timerRestart: {desc: 'Restart timer', params: ['timer']}
@@ -89,6 +97,33 @@ let tagFamilies = {
     tags: ['optional'],
     appliesTo: ['entity', 'resource', 'outcome']
   },
+  singular: {
+    name: 'singular',
+    text: 'It is',
+    tags: ['singular'],
+    appliesTo: ['entity']
+  },
+  playerControls: {
+    name: 'playerControls',
+    text: 'Controlled by',
+    tags: ['player'],
+    appliesTo: ['entity'],
+  },
+  /*
+  directControls: {
+    name: 'directControls',
+    text: 'Has direct controls',
+    tags: ['asteroids', 'tank', 'vertical', 'horizontal', 'cardinal'],
+    appliesTo: ['entity']
+  },
+  indirectControls: {
+    name: 'indirectControls',
+    text: 'Has indirect controls',
+    tags: ['click_and_drag', 'drawn_to_cursor', 'repeled_from_cursor',
+           'click_to_spin', 'click_to_move', 'click_to_chase', 'orbit_the_cursor'],
+    appliesTo: ['entity']
+  },
+  */
   playerAttitude: {
     name: 'playerAttitude',
     text: 'Player thinks it\'s',
@@ -322,6 +357,12 @@ function randomizeThing(thingNode) {
 }
 
 function wireUpOnclickHandlers(thingNode) {
+  for (let nameField of thingNode.querySelectorAll('.thing-name')) {
+    nameField.oninput = function (ev) {
+      console.log(ev);
+      currentIntent[thingNode.id].name = ev.target.value;
+    };
+  }
   for (let editTagsLink of thingNode.querySelectorAll('.edit-tags')) {
     editTagsLink.onclick = function() {
       openTagEditor(thingNode);
@@ -331,12 +372,12 @@ function wireUpOnclickHandlers(thingNode) {
     deleteButton.onclick = function() {
       delete currentIntent[thingNode.id];
       thingNode.remove();
-    }
+    };
   }
   for (let randomizeButton of thingNode.querySelectorAll('.randomize')) {
     randomizeButton.onclick = function() {
       randomizeThing(thingNode);
-    }
+    };
   }
 }
 
@@ -747,8 +788,8 @@ newRelationshipButton.onclick = function() {
 newTriggerButton.onclick = function() {
   let defaultTrigger = {
     type: 'trigger',
-    when: [{cond: 'Every tick', params: []}],
-    then: [{action: 'Do nothing', params: []}]
+    when: [{cond: 'Something happens', params: []}],
+    then: [{action: 'Do something', params: []}]
   };
   addThingToThingSet(currentIntent, defaultTrigger);
   let node = createTriggerNode(defaultTrigger);
@@ -856,6 +897,20 @@ function updateCurrentGame() {
 }
 
 generateGames.onclick = function() {
+  // pull trigger data from the UI into the currentIntent datastructure
+  const triggers = Object.values(currentIntent).filter(t => t.type === 'trigger');
+  for (let trigger of triggers) {
+    const triggerNode = document.getElementById(trigger.id);
+    const whenSelect = triggerNode.querySelector('.whenSelect');
+    const whenParamInputs = whenSelect.parentNode.querySelectorAll('.slotPair input');
+    const thenSelect = triggerNode.querySelector('.thenSelect');
+    const thenParamInputs = thenSelect.parentNode.querySelectorAll('.slotPair input');
+    trigger.when[0].cond   = triggerConditions[whenSelect.value].desc;
+    trigger.when[0].params = [...whenParamInputs].map(input => input.value);
+    trigger.then[0].action = triggerActions[thenSelect.value].desc;
+    trigger.then[0].params = [...thenParamInputs].map(input => input.value);
+  }
+  // make the request to the server
   currentGameIndex = 0;
   requestGamesFromServer(currentIntent);
 }
@@ -886,6 +941,7 @@ function requestGamesFromServer(intent) {
 }
 
 function postprocessReceivedGame(gameInfo) {
+  gameInfo.asp = gameInfo.asp.replace(/narrative_progress/g, "game_win").replace(/narrative_gating/g, "game_loss");
   let outputThings = parseGameASP(gameInfo.asp).things;
 
   // For each output entity, set its name and icon to match those of the corresponding intent entity.
