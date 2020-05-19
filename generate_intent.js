@@ -108,7 +108,6 @@ function generateASPForResource(resource) {
 }
 
 function generateASPForRelationship(intent, relationship) {
-  // TODO handle negated relationships
   // TODO check if it makes sense for this kind of relationship to exist between these two things
   // TODO complain to the user if the named LHS and RHS things don't actually exist
   const {lhs, rhs, reltype} = relationship;
@@ -137,19 +136,26 @@ function generateASPForRelationship(intent, relationship) {
   // generate appropriate ASP for the specified reltype
   const lhsASPHandle = lhsThing ? makeThingASPHandle(lhsThing) : '_';
   const rhsASPHandle = rhsThing ? makeThingASPHandle(rhsThing) : '_';
+  const maybeNot = relationship.isNegated ? '' : 'not';
   if (reltype === 'consumes') {
-    asp += `:- not reading(consumes,relation(${lhsASPHandle},${rhsASPHandle})).`;
+    asp += `:- ${maybeNot} reading(consumes,relation(${lhsASPHandle},${rhsASPHandle})).`;
   }
   else if (reltype === 'produces') {
-    asp += `:- not reading(produces,relation(${lhsASPHandle},${rhsASPHandle})).`;
+    asp += `:- ${maybeNot} reading(produces,relation(${lhsASPHandle},${rhsASPHandle})).`;
   }
   else if (reltype === 'tradeoff') {
-    asp += `:- not reading(tradeoff,relation(${lhsASPHandle},${rhsASPHandle})).`;
+    asp += `:- ${maybeNot} reading(tradeoff,relation(${lhsASPHandle},${rhsASPHandle})).`;
   }
   else if (reltype === 'collides with') {
-    asp += `% apply restitution between these entities every frame
+    if (relationship.isNegated) {
+      asp += `% prevent application of restitution between these entities
+:- result(_,apply_restitution(${lhsASPHandle},${rhsASPHandle})).`;
+    }
+    else {
+      asp += `% apply restitution between these entities every frame
 precondition(tick,tick).
 result(tick,apply_restitution(${lhsASPHandle},${rhsASPHandle})).`;
+    }
   }
   else {
     console.warn(`I ain't never heard of no relationship with reltype: ${reltype} before! \
