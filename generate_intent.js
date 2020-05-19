@@ -138,15 +138,23 @@ function generateASPForRelationship(intent, relationship) {
   const rhsASPHandle = rhsThing ? makeThingASPHandle(rhsThing) : '_';
   const maybeNot = relationship.isNegated ? '' : 'not';
   if (reltype === 'consumes') {
+    // TODO lhs must be entity, rhs must be entity or resource
     asp += `:- ${maybeNot} reading(consumes,relation(${lhsASPHandle},${rhsASPHandle})).`;
   }
   else if (reltype === 'produces') {
+    // TODO lhs must be entity, rhs must be entity or resource
     asp += `:- ${maybeNot} reading(produces,relation(${lhsASPHandle},${rhsASPHandle})).`;
   }
+  else if (reltype === 'costs') {
+    // TODO lhs must be entity, rhs must be resource
+    asp += `:- ${maybeNot} reading(costs,relation(${lhsASPHandle},${rhsASPHandle})).`;
+  }
   else if (reltype === 'tradeoff') {
+    // TODO lhs must be resource, rhs must be resource
     asp += `:- ${maybeNot} reading(tradeoff,relation(${lhsASPHandle},${rhsASPHandle})).`;
   }
   else if (reltype === 'collides with') {
+    // TODO lhs must be entity, rhs must be entity
     if (relationship.isNegated) {
       asp += `% prevent application of restitution between these entities
 :- result(_,apply_restitution(${lhsASPHandle},${rhsASPHandle})).`;
