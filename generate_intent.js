@@ -240,6 +240,12 @@ function generateASPForTrigger(intent, trigger) {
       const aspHandle = getASPHandle(intent, then.params[0], 'entity');
       aspClauses.push(`result(O,delete(${aspHandle}))`);
     }
+    else if (then.action === 'Win game') {
+      aspClauses.push(`result(O,mode_change(game_win;narrative_progress))`);
+    }
+    else if (then.action === 'Lose game') {
+      aspClauses.push(`result(O,mode_change(game_loss;narrative_gating))`);
+    }
     else {
       console.warn('unsupported action type', then);
     }

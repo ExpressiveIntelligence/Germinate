@@ -99,26 +99,26 @@ let triggerConditions = {
 
 let triggerActions = {
   something: {desc: 'Do something', params: []},
-  setRval: {desc: 'Set resource value', params: ['resource']},
+  //setRval: {desc: 'Set resource value', params: ['resource']},
   incRval: {desc: 'Increase resource value', params: ['resource']},
   decRval: {desc: 'Decrease resource value', params: ['resource']},
-  teleport: {desc: 'Teleport entity to', params: ['entity', 'target']},
-  moveEntToward: {desc: 'Move entity toward', params: ['entity', 'target']},
-  moveEntAway: {desc: 'Move entity away from', params: ['entity', 'target']},
+  //teleport: {desc: 'Teleport entity to', params: ['entity', 'target']},
+  //moveEntToward: {desc: 'Move entity toward', params: ['entity', 'target']},
+  //moveEntAway: {desc: 'Move entity away from', params: ['entity', 'target']},
   moveEntDir: {desc: 'Move entity in direction', params: ['entity', 'direction']},
   restitution: {desc: 'Prevent entity overlap', params: ['entity #1', 'entity #2']},
   rotEntBy: {desc: 'Rotate entity by angle', params: ['entity', 'angle']},
   entLookAt: {desc: 'Make entity look at', params: ['entity', 'target']},
-  setEntSprite: {desc: 'Set entity sprite', params: ['entity', 'sprite']},
-  setEntColor: {desc: 'Set entity color', params: ['entity', 'color']},
-  setEntSize: {desc: 'Set entity size', params: ['entity', 'size']},
+  //setEntSprite: {desc: 'Set entity sprite', params: ['entity', 'sprite']},
+  //setEntColor: {desc: 'Set entity color', params: ['entity', 'color']},
+  //setEntSize: {desc: 'Set entity size', params: ['entity', 'size']},
   spawnEnt: {desc: 'Spawn entity', params: ['entity']},
   deleteEnt: {desc: 'Delete entity', params: ['entity']},
   win: {desc: 'Win game', params: []},
   lose: {desc: 'Lose game', params: []},
-  timerStart: {desc: 'Start timer', params: ['timer']},
-  timerPause: {desc: 'Pause timer', params: ['timer']},
-  timerRestart: {desc: 'Restart timer', params: ['timer']}
+  //timerStart: {desc: 'Start timer', params: ['timer']},
+  //timerPause: {desc: 'Pause timer', params: ['timer']},
+  //timerRestart: {desc: 'Restart timer', params: ['timer']}
 };
 
 let tagFamilies = {
