@@ -7,8 +7,6 @@ This repository contains the web frontend for Germinate, a casual creator for rh
 * `assets/`: Sprites and sounds used by the generated Gemini games.
 * `client/`: JS files responsible for implementing the Germinate UI.
 * `compiler/`: JS files responsible for compiling generated Gemini games (in AnsProlog format) into executable JS.
-* `games/`: Example games produced by Gemini, in AnsProlog format. I don't think we need these in this repo anymore, but leaving them in for now just to be safe.
-* `intents/`: Example AnsProlog intents provided to Gemini, used to generate the example games in the `games` directory. I don't think we need these in the repo anymore either.
 * `lib/`: External JS libraries used by the `compiler/` and `loader/` JS.
 * `loader/`: JS files responsible for loading Gemini games by passing them to the `compiler/`, then concatenating the output JS with necessary libraries and inserting the resulting Phaser game into the HTML page. Provides the global `loadGame(gameFileContents)` function invoked by the main client JS.
 * `index.html`: Main HTML file for the Germinate UI.

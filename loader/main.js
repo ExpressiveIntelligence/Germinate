@@ -19,23 +19,19 @@ requirejs.config({
 		"Condition" : "./Condition.js", // From StoryAssembler/. Needed by State.js
 		"Display" : "./Display.js", // Dummy version of the one from ClimateChange/js/. Referenced by the generated Phaser games. 
 		"StoryAssembler" : "./StoryAssembler.js", // Dummy version of StoryAssembler for Phaser to reference
-
-		// *** Initial Cygnus file ***
-		"initialGame" : "../games/depression-A-game_1.lp"
 	}
 });
 
 var loadGame;
+var game; // declare this up front so we can safely assign to it later
 
 requirejs(
-	["Phaser","AspPhaserGenerator","text!initialPhaserFile","text!initialGame",
+	["Phaser","AspPhaserGenerator","text!initialPhaserFile",
 	"text!HealthBar","text!State","text!Condition","text!Display","text!StoryAssembler",
 	"jQuery"],
-	function (Phaser, AspPhaserGenerator, initialPhaserFile, initialGame,
+	function (Phaser, AspPhaserGenerator, initialPhaserFile,
 		HealthBar, State, Condition, Display, StoryAssembler) {
 
-
-	loadGame_ (initialGame);
 	previousGame.disabled=true;
 
 	function loadGame_ (gameFile) {
@@ -57,7 +53,7 @@ requirejs(
 				width: 500, \
 				height: 400,\
 				renderer: Phaser.AUTO,\
-				parent: 'game',\
+				parent: 'gameContainer',\
 				resolution: window.devicePixelRatio,\
 				transparent: true,\
 				state: { preload: preload, create: create, update: update }\

@@ -438,7 +438,7 @@ input.thing-name {
   text-align: center;
   width: 75% !important;
 }
-#game {
+#gameContainer {
   background: #ccc;
   height: 400px;
   margin: 0 auto;

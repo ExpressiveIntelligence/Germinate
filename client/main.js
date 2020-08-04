@@ -872,7 +872,7 @@ function updateCurrentGame() {
   const gameInfo = loadedGames[currentGameIndex];
 
   // Destroy the current game, if any
-  if (game != "undefined") game.destroy();
+  if (game) game.destroy();
 
   loadGame(gameInfo.asp);
 
