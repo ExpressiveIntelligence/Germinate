@@ -1,4 +1,4 @@
-# GeminiTool
+# Germinate
 
 This repository contains the web frontend for Germinate, a casual creator for rhetorical games built on the Gemini game generator.
 
