@@ -1,6 +1,6 @@
 # Germinate
 
-This repository contains the web frontend for Germinate, a casual creator for rhetorical games built on the Gemini game generator.
+This repository contains the web frontend for Germinate, a casual creator for rhetorical games built on the [Gemini](https://github.com/ExpressiveIntelligence/Gemini) game generator.
 
 ## Repository contents
 
