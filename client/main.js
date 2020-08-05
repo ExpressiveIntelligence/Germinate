@@ -1,6 +1,3 @@
-// ❌
-// ↩
-
 /// generic utility functions
 
 function clone(data) {
